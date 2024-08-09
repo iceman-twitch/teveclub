@@ -2,7 +2,7 @@
 # Name:        TEVECLUB TEST
 # Purpose:
 #
-# Author:      ICEMAn
+# Author:      ICEMAN
 #
 # Created:     10.01.2020
 # Copyright:   (c) ICEMAN 2020
