@@ -46,18 +46,29 @@ honnan 409
 tipp Ez a tippem!
 """
 
+"""
+Host: teveclub.hu
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:137.0) Gecko/20100101 Firefox/137.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br, zstd
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 57
+Origin: https://teveclub.hu
+Connection: keep-alive
+Referer: https://teveclub.hu/
+Cookie: SESSION_ID=XXX
+Upgrade-Insecure-Requests: 1
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: same-origin
+Sec-Fetch-User: ?1
+
+tevenev=XXX&pass=XXX&x=38&y=42&login=Gyere!
+"""
 def get_new_user_agent():
     user_agents = [
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3",
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:53.0) Gecko/20100101 Firefox/53.0",
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.79 Safari/537.36 Edge/14.14393",
-        "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.71 Safari/537.36",
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36",
-        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3",
-        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/602.4.8 (KHTML, like Gecko) Version/10.2.2 Safari/602.4.8",
-        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:52.0) Gecko/20100101 Firefox/52.0",
-        "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3",
-        "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:54.0) Gecko/20100101 Firefox/54.0"
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:137.0) Gecko/20100101 Firefox/137.0",
     ]
     return random.choice(user_agents)
     
@@ -77,11 +88,13 @@ class teveclub():
         time.sleep(min(random.expovariate(0.6), 15.0))
         
     def Login(self):
-
-        self.s.headers.update({ "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:53.0) Gecko/20100101 Firefox/53.0" })
+        usera = get_new_user_agent()
+        self.s.headers.update({ "User-Agent": usera })
         data = {}
         data['tevenev'] = self.a
         data['pass'] = self.b
+        data['x'] = '38'
+        data['y'] = '42'
         data['login'] = 'Gyere!'
 
         r = self.s.post(LOGIN_URL , data=data)
@@ -146,6 +159,7 @@ class teveclub():
             }
             r = self.s.post(self.MYTEVE_URL , data=data)
             etet = etet + 1
+            self.dosleep()
         print('Etetés Vége')
     def Guess(self):
         self.s.post('https://teveclub.hu/egyszam.pet',data={'honnan':'403','tipp':'Ez a tippem!'})
