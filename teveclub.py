@@ -16,7 +16,7 @@ import time
 import random
 import sys
 
-#ARGUEMENTS
+#ARGUMENTS
 if len(sys.argv) > 1:
     print(f"Argument 1: {sys.argv[1]}, Argument 2: {sys.argv[2]}")
 else:
