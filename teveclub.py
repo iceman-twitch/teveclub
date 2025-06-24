@@ -1,6 +1,6 @@
 #-------------------------------------------------------------------------------
 # Name:        TEVECLUB BOT
-# Purpose:
+# Purpose:     Testing request capabilities
 #
 # Author:      ICEMAN
 #
