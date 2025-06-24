@@ -1,11 +1,11 @@
 #-------------------------------------------------------------------------------
-# Name:        TEVECLUB TEST
+# Name:        TEVECLUB BOT
 # Purpose:
 #
 # Author:      ICEMAN
 #
 # Created:     10.01.2020
-# Copyright:   (c) ICEMAN 2020
+# Copyright:   (c) ICEMAN 2025
 # Licence:     <ICEMAN>
 #-------------------------------------------------------------------------------
 
@@ -16,11 +16,13 @@ import time
 import random
 import sys
 
+#ARGUEMENTS
 if len(sys.argv) > 1:
     print(f"Argument 1: {sys.argv[1]}, Argument 2: {sys.argv[2]}")
 else:
     print("No arguments provided")
     sys.exit(1)
+    
 #CONSTRAINTS
 USER = str(sys.argv[1])
 PASSW = str(sys.argv[2])
@@ -28,10 +30,11 @@ LOGIN_URL = "https://teveclub.hu/"
 MYTEVE_URL = "https://teveclub.hu/myteve.pet"
 TANIT_URL = "https://teveclub.hu/tanit.pet"
 TIPP_URL = "https://teveclub.hu/egyszam.pet"
+
 #VARS
 s = None
-# ADD TUDOMANY TO POST
 
+#USERAGENT
 def get_new_user_agent():
     user_agents = [
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:137.0) Gecko/20100101 Firefox/137.0",
@@ -51,7 +54,7 @@ class teveclub():
         # self.bot()
 
     def dosleep(self):
-        time.sleep(min(random.expovariate(0.6), 15.0))
+        time.sleep(min(random.expovariate(1.6), 4.0))
         
     def Login(self):
         usera = get_new_user_agent()
@@ -99,17 +102,17 @@ class teveclub():
                     'tudomany': val
                 }
                 self.s.post(TANIT_URL , data=data)
-                self.dosleep()
                 print('Tanítás Vége')
+                self.dosleep()
             else:
                 data = {
                     'farmdoit': 'tanit',
                     'learn': 'Tanulj teve!'
                 }
-                #r = self.s.get(TANIT_URL)
                 self.s.post(TANIT_URL , data=data)
-                self.dosleep()
                 print('Tanítás Vége')
+                self.dosleep()
+                
     def Food(self):
 
         r = self.s.get(self.MYTEVE_URL)
@@ -127,10 +130,12 @@ class teveclub():
             etet = etet + 1
             self.dosleep()
         print('Etetés Vége')
+        self.dosleep()
+        
     def Guess(self):
         self.s.post('https://teveclub.hu/egyszam.pet',data={'honnan':'403','tipp':'Ez a tippem!'})
-        self.dosleep()
         print('Egyszám! játék Vége')
+        self.dosleep()
 
     def Bot(self):
         if self.Login():
@@ -147,7 +152,6 @@ class teveclub():
             except:
                 print("EgySzám! Játék sikertelen!")
             
-
-
+#STARTBOTCLASS
 teve = teveclub(USER, PASSW)
 teve.Bot()
