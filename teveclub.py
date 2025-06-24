@@ -114,7 +114,6 @@ class teveclub():
                 self.dosleep()
                 
     def Food(self):
-
         r = self.s.get(self.MYTEVE_URL)
         self.dosleep()
         etet = 0
