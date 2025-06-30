@@ -54,7 +54,7 @@ class teveclub():
         # self.bot()
 
     def dosleep(self):
-        time.sleep(min(random.expovariate(1.6), 4.0))
+        time.sleep(min(random.expovariate(1.6), 3.0))
         
     def Login(self):
         usera = get_new_user_agent()
@@ -150,6 +150,7 @@ class teveclub():
                 self.Guess()
             except:
                 print("EgySzám! Játék sikertelen!")
+            time.sleep(3)
             
 #STARTBOTCLASS
 teve = teveclub(USER, PASSW)
