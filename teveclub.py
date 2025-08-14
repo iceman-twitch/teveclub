@@ -15,6 +15,8 @@ from bs4 import BeautifulSoup
 import time
 import random
 import sys
+import os
+import json
 
 #USERAGENT
 def get_new_user_agent():
@@ -35,10 +37,33 @@ class teveclub():
         self.TIPP_URL = "https://teveclub.hu/egyszam.pet"
         self.ua = None
 
+    def useragent(self):
+        # Default user agents
+        user_agents = [
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:137.0) Gecko/20100101 Firefox/137.0",
+        ]
+        
+        # Try to load from JSON file if it exists
+        json_file = "user_agents.json"
+        if os.path.exists(json_file):
+            try:
+                with open(json_file, 'r') as f:
+                    data = json.load(f)
+                    # Check if loaded data is a list of strings
+                    if isinstance(data, list) and all(isinstance(x, str) for x in data):
+                        user_agents = data
+                    # Alternatively check if it's a dict with 'user_agents' key
+                    elif isinstance(data, dict) and 'user_agents' in data and isinstance(data['user_agents'], list):
+                        user_agents = data['user_agents']
+            except (json.JSONDecodeError, PermissionError):
+                pass  # Fall back to default if there's any error
+        
+        return random.choice(user_agents)
+    
     def dosleep(self):
         time.sleep(min(random.expovariate(1.6), 3.0))
     
-    def GetSession():
+    def GetSession(self):
         return self.s
     
     def Login(self):
