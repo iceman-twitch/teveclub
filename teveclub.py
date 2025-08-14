@@ -18,13 +18,6 @@ import sys
 import os
 import json
 
-#USERAGENT
-def get_new_user_agent():
-    user_agents = [
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:137.0) Gecko/20100101 Firefox/137.0",
-    ]
-    return random.choice(user_agents)
-    
 #MAIN CLASS
 class teveclub():
     def __init__(self, a, b):
@@ -37,7 +30,7 @@ class teveclub():
         self.TIPP_URL = "https://teveclub.hu/egyszam.pet"
         self.ua = None
 
-    def useragent(self):
+    def GetUserAgent(self):
         # Default user agents
         user_agents = [
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:137.0) Gecko/20100101 Firefox/137.0",
@@ -67,8 +60,8 @@ class teveclub():
         return self.s
     
     def Login(self):
-        usera = get_new_user_agent()
-        self.s.headers.update({ "User-Agent": usera })
+        self.ua = self.GetUserAgent()
+        self.s.headers.update({ "User-Agent": self.ua })
         data = {}
         data['tevenev'] = self.a
         data['pass'] = self.b
