@@ -1,6 +1,6 @@
 #-------------------------------------------------------------------------------
 # Name:        TEVECLUB BOT
-# Purpose:     Testing request capabilities
+# Purpose:     Testing request capabilities in a webgame
 #
 # Author:      ICEMAN
 #
@@ -16,24 +16,6 @@ import time
 import random
 import sys
 
-#ARGUMENTS
-if len(sys.argv) > 1:
-    print(f"Argument 1: {sys.argv[1]}, Argument 2: {sys.argv[2]}")
-else:
-    print("No arguments provided")
-    sys.exit(1)
-    
-#CONSTRAINTS
-USER = str(sys.argv[1])
-PASSW = str(sys.argv[2])
-LOGIN_URL = "https://teveclub.hu/"
-MYTEVE_URL = "https://teveclub.hu/myteve.pet"
-TANIT_URL = "https://teveclub.hu/tanit.pet"
-TIPP_URL = "https://teveclub.hu/egyszam.pet"
-
-#VARS
-s = None
-
 #USERAGENT
 def get_new_user_agent():
     user_agents = [
@@ -47,15 +29,18 @@ class teveclub():
         self.s = requests.Session()
         self.a=a
         self.b=b
-        self.LOGIN_URL=LOGIN_URL
-        self.MYTEVE_URL = MYTEVE_URL
-        self.TANIT_URL = TANIT_URL
-        self.TIPP_URL = TIPP_URL
-        # self.bot()
+        self.LOGIN_URL="https://teveclub.hu/"
+        self.MYTEVE_URL = "https://teveclub.hu/myteve.pet"
+        self.TANIT_URL = "https://teveclub.hu/tanit.pet"
+        self.TIPP_URL = "https://teveclub.hu/egyszam.pet"
+        self.ua = None
 
     def dosleep(self):
         time.sleep(min(random.expovariate(1.6), 3.0))
-        
+    
+    def GetSession():
+        return self.s
+    
     def Login(self):
         usera = get_new_user_agent()
         self.s.headers.update({ "User-Agent": usera })
@@ -66,27 +51,27 @@ class teveclub():
         data['y'] = '42'
         data['login'] = 'Gyere!'
 
-        r = self.s.post(LOGIN_URL , data=data)
+        r = self.s.post(self.LOGIN_URL , data=data)
         self.dosleep()
         r = self.s.get(self.MYTEVE_URL)
         self.dosleep()
         login=False
         if ('Teve Legyen Veled!' in r.text):
-            print('Sikeres Bejelentkezés')
+            print('Login success!!')
             login=True
         return login
         
     def Learn(self):
         self.s.get(self.MYTEVE_URL)
         self.dosleep()
-        r= self.s.get(self.TANIT_URL)
+        r = self.s.get(self.TANIT_URL)
         self.dosleep()
         if ('Nincs több olyan trükk, amit a tevéd meg tud tanulni!' in r.text):
-            print('Nincs több olyan trükk, amit a tevéd meg tud tanulni!')
-            return
+            print('No new trick to learn!!!')
+            return False
         else:
             if ('Válaszd ki, hogy mit tanuljon a tevéd:' in r.text):
-                print('Van Mit Tanulni!')
+                print('There is to learn!')
                 soup = BeautifulSoup(r.text,"html.parser")
                 data = {}
                 i=0
@@ -95,7 +80,7 @@ class teveclub():
                     data[i] = option['value']
                     #print(data[i])
                     i = i + 1
-                print("Tanulás azonosítója: ", random.choice(data))
+                print("Lesson id: ", random.choice(data))
                 val = random.choice(data)
                 data = {
                     'learn': 'Tanulj teve!',
@@ -110,8 +95,9 @@ class teveclub():
                     'learn': 'Tanulj teve!'
                 }
                 self.s.post(TANIT_URL , data=data)
-                print('Tanítás Vége')
+                print('Learning success!!!')
                 self.dosleep()
+            return True
                 
     def Food(self):
         r = self.s.get(self.MYTEVE_URL)
@@ -128,30 +114,53 @@ class teveclub():
             r = self.s.post(self.MYTEVE_URL , data=data)
             etet = etet + 1
             self.dosleep()
-        print('Etetés Vége')
+        print('Feeding success!!!')
         self.dosleep()
+        return True
         
     def Guess(self):
         self.s.post('https://teveclub.hu/egyszam.pet',data={'honnan':'403','tipp':'Ez a tippem!'})
-        print('Egyszám! játék Vége')
+        print('Guess Game success!!!')
         self.dosleep()
+        return True
 
     def Bot(self):
         if self.Login():
             try:
                 self.Food()
             except:
-                print("Etetés sikertelen!")
+                print("Feeding failed!!!")
             try:
                 self.Learn()
             except:
-                print("Tanítás sikertelen!")
+                print("Learning failed!!!")
             try:
                 self.Guess()
             except:
-                print("EgySzám! Játék sikertelen!")
+                print("Guess Game failed!!")
             time.sleep(3)
+        else:
+            print("Login failed!!!")
             
-#STARTBOTCLASS
-teve = teveclub(USER, PASSW)
-teve.Bot()
+
+def test_teveclub():
+    #ARGUMENTS
+    if len(sys.argv) > 1:
+        print(f"Argument 1: {sys.argv[1]}, Argument 2: {sys.argv[2]}")
+    else:
+        print("No arguments provided")
+        sys.exit(1)
+        
+    #CONSTRAINTS
+    USER = str(sys.argv[1])
+    PASSW = str(sys.argv[2])
+
+    #VARS
+    s = None
+    
+    #STARTBOTCLASS
+    teve = teveclub(USER, PASSW)
+    teve.Bot()
+
+if __name__ == "__main__":
+    test_teveclub()
