@@ -1,35 +1,40 @@
 # -*- mode: python -*-
-from PyInstaller.utils.hooks import collect_data_files
+from PyInstaller.building.build_main import Analysis
 
 block_cipher = None
+
+# MANUALLY list all required modules
+required_modules = ['teveclub', 'icon']
 
 a = Analysis(
     ['main.py'],
     pathex=[],
     binaries=[],
-    datas=[],  # For non-Python files only
-    hiddenimports=['teveclub', 'icon'],  # List all your custom modules here
+    datas=[('icon.ico', '.')],  # Only non-Python files here
+    hiddenimports=required_modules,
     hookspath=[],
     excludes=[],
     runtime_hooks=[],
-    cipher=block_cipher
+    cipher=block_cipher,
+    noarchive=False
 )
 
-pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
+# Force-include your modules
+for module in required_modules:
+    a.add_pure_python_module(module)
+
+pyz = a.pure
 
 exe = EXE(
     pyz,
     a.scripts,
-    a.binaries,
-    a.zipfiles,
-    a.datas,
+    [],
+    exclude_binaries=True,
     name='TeveClub',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
     upx=True,
-    upx_exclude=[],
-    runtime_tmpdir=None,
     console=False,
-    icon='icon.ico'  # Your .ico file (not icon.py)
+    icon='icon.ico'
 )
