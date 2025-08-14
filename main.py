@@ -4,6 +4,7 @@ from teveclub import teveclub
 from icon import icon
 import json
 import os
+from pathlib import Path
 
 
 class LoginApp:
@@ -22,20 +23,49 @@ class LoginApp:
         self.setup_ui()
         
     def get_icon(self):
-        """Get the correct path for the icon, whether in dev or PyInstaller bundle."""
+        """Enhanced icon path resolution with multiple fallbacks"""
+        # Try development location first
+        dev_icon = Path("icon.ico")
+        if dev_icon.exists():
+            return str(dev_icon)
+
+        # PyInstaller bundle locations
         if getattr(sys, 'frozen', False):
-            # PyInstaller bundle mode
-            return os.path.join(sys._MEIPASS, "icon.ico")
-        else:
-            # Normal development mode
-            return "icon.ico"
+            # 1. MEIPASS (onefile mode)
+            meipass_icon = Path(getattr(sys, '_MEIPASS', '')) / "icon.ico"
+            if meipass_icon.exists():
+                return str(meipass_icon)
             
+            # 2. Executable directory (onedir mode)
+            exe_dir_icon = Path(sys.executable).parent / "icon.ico"
+            if exe_dir_icon.exists():
+                return str(exe_dir_icon)
+
+        # cx_Freeze bundle location
+        if hasattr(sys, 'frozen') and not getattr(sys, 'frozen', False):
+            lib_icon = Path(sys.executable).parent / "lib" / "icon.ico"
+            if lib_icon.exists():
+                return str(lib_icon)
+
+        # Final fallback to original behavior
+        return "icon.ico" if not getattr(sys, 'frozen', False) else os.path.join(getattr(sys, '_MEIPASS', ''), "icon.ico")
+
     def setup_icon(self):
+        """Safe icon loading with multiple attempts"""
+        icon_path = self.get_icon()
+        if not Path(icon_path).exists():
+            return  # Skip if icon doesn't exist
+            
         try:
-            self.root.iconbitmap(self.get_icon())
+            self.root.iconbitmap(icon_path)
         except:
-            pass  # Silently fail if icon missing
-        
+            try:
+                # Alternative Linux/Mac approach
+                img = tk.PhotoImage(file=icon_path)
+                self.root.tk.call('wm', 'iconphoto', self.root._w, img)
+            except:
+                pass  # Complete silent fallback
+                
     def setup_ui(self):
         # Try to load saved credentials
         credentials = self.load_credentials()
@@ -44,19 +74,19 @@ class LoginApp:
         username_label = tk.Label(self.root, text="Username:")
         username_label.pack(pady=(20, 0))
 
-        username_entry = tk.Entry(self.root, width=30)
-        username_entry.pack(pady=5)
+        self.username_entry = tk.Entry(self.root, width=30)
+        self.username_entry.pack(pady=5)
         if credentials:
-            username_entry.insert(0, credentials.get("username", ""))
+            self.username_entry.insert(0, credentials.get("username", ""))
             
         # Password Label and Entry
         password_label = tk.Label(self.root, text="Password:")
         password_label.pack()
 
-        password_entry = tk.Entry(self.root, width=30, show="*")  # show="*" makes it display asterisks
-        password_entry.pack(pady=5)
+        self.password_entry = tk.Entry(self.root, width=30, show="*")  # show="*" makes it display asterisks
+        self.password_entry.pack(pady=5)
         if credentials:
-            password_entry.insert(0, credentials.get("password", ""))
+            self.password_entry.insert(0, credentials.get("password", ""))
 
         # Start Button
         start_button = tk.Button(self.root, text="Start", command=self.on_start_click)
@@ -82,16 +112,16 @@ class LoginApp:
             return False
 
     def on_start_click(self):
-        self.username = username_entry.get()
-        self.password = password_entry.get()
+        self.username = self.username_entry.get()
+        self.password = self.password_entry.get()
         
-        if not username or not password:
+        if not self.username or not self.password:
             messagebox.showwarning("Warning", "Please enter both username and password")
         else:
-            # messagebox.showinfo("Success", f"Login successful!\nUsername: {username}\nPassword: {'*' * len(password)}")
+            # messagebox.showinfo("Success", f"Login successful!\nUsername: {self.username}\nPassword: {'*' * len(self.password)}")
             #CONSTRAINTS
-            USER = str(username)
-            PASSW = str(password)
+            USER = str(self.username)
+            PASSW = str(self.password)
             
             #STARTBOTCLASS
             teve = teveclub(USER, PASSW)
@@ -114,7 +144,7 @@ class LoginApp:
                 except:
                     messagebox.showinfo("Failed", "Guess Game failed!!")
             else:
-                messagebox.showinfo("Failed", f"Login failed!\nUsername: {username}\nPassword: {'*' * len(password)}")
+                messagebox.showinfo("Failed", f"Login failed!\nUsername: {self.username}\nPassword: {'*' * len(self.password)}")
 
 
 

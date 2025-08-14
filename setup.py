@@ -3,18 +3,20 @@ import sys
 import os
 
 # Application base
-base = None
-if sys.platform == "win32":
-    base = "Win32GUI"  # For Windows GUI app
+base = "Win32GUI" if sys.platform == "win32" else None
 
-# List of included modules
 build_options = {
-    "packages": ["tkinter", "teveclub", "icon"],
+    "packages": ["tkinter", "requests", "bs4", "json", "pathlib", "time", "random"],
+    "includes": ["teveclub", "icon"],  # Explicitly include your custom modules
+    "include_files": [
+        "icon.ico",
+        ("teveclub.py", "lib/teveclub.py"),  # Force include with destination path
+        ("icon.py", "lib/icon.py")
+    ],
     "excludes": [],
-    "include_files": ["icon.ico"],
+    "optimize": 2,
 }
 
-# Executable configuration
 executables = [
     Executable(
         "main.py",
@@ -27,7 +29,7 @@ executables = [
 setup(
     name="TeveClub",
     version="1.0",
-    description="Your Application",
+    description="TeveClub Application",
     options={"build_exe": build_options},
     executables=executables
 )

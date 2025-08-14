@@ -9,6 +9,16 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# Build
+dist/
+build/
+
+# Release
+Teveclub.zip
+Teveclub.7z
+Teveclub.rar
+Teveclub.exe
+
 # Credentials 
 credentials.json
 
