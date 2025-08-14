@@ -27,7 +27,7 @@ def on_start_click():
                 messagebox.showinfo("Failed", "Learning failed!!!")
             try:
                 teve.Guess()
-                messagebox.showinfo("Success", "Your pet done all works today!!")
+                messagebox.showinfo("Success", "Your pet done all works for today!!")
             except:
                 messagebox.showinfo("Failed", "Guess Game failed!!")
         else:
