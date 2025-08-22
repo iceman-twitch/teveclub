@@ -1,253 +1,120 @@
 import tkinter as tk
 from tkinter import messagebox
+from teveclub import teveclub
 import json
 import os
 from pathlib import Path
 import sys
-import requests
-from bs4 import BeautifulSoup
-import time
-import random
-
-class teveclub():
-    def __init__(self, a, b):
-        self.s = requests.Session()
-        self.a=a
-        self.b=b
-        self.LOGIN_URL="https://teveclub.hu/"
-        self.MYTEVE_URL = "https://teveclub.hu/myteve.pet"
-        self.TANIT_URL = "https://teveclub.hu/tanit.pet"
-        self.TIPP_URL = "https://teveclub.hu/egyszam.pet"
-        self.ua = None
-
-    def GetUserAgent(self):
-        user_agents = [
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:137.0) Gecko/20100101 Firefox/137.0",
-        ]
-        
-        json_file = "user_agents.json"
-        if os.path.exists(json_file):
-            try:
-                with open(json_file, 'r') as f:
-                    data = json.load(f)
-                    if isinstance(data, list) and all(isinstance(x, str) for x in data):
-                        user_agents = data
-                    elif isinstance(data, dict) and 'user_agents' in data and isinstance(data['user_agents'], list):
-                        user_agents = data['user_agents']
-            except (json.JSONDecodeError, PermissionError):
-                pass
-        
-        return random.choice(user_agents)
-    
-    def dosleep(self):
-        time.sleep(min(random.expovariate(1.6), 3.0))
-    
-    def GetSession(self):
-        return self.s
-    
-    def Login(self):
-        self.ua = self.GetUserAgent()
-        self.s.headers.update({ "User-Agent": self.ua })
-        data = {}
-        data['tevenev'] = self.a
-        data['pass'] = self.b
-        data['x'] = '38'
-        data['y'] = '42'
-        data['login'] = 'Gyere!'
-
-        r = self.s.post(self.LOGIN_URL , data=data)
-        self.dosleep()
-        r = self.s.get(self.MYTEVE_URL)
-        self.dosleep()
-        login=False
-        if ('Teve Legyen Veled!' in r.text):
-            print('Login success!!')
-            login=True
-        return login
-        
-    def Learn(self):
-        self.s.get(self.MYTEVE_URL)
-        self.dosleep()
-        r = self.s.get(self.TANIT_URL)
-        self.dosleep()
-        if ('Nincs több olyan trükk, amit a tevéd meg tud tanulni!' in r.text):
-            print('No new trick to learn!!!')
-            return False
-        else:
-            if ('Válaszd ki, hogy mit tanuljon a tevéd:' in r.text):
-                print('There is to learn!')
-                soup = BeautifulSoup(r.text,"html.parser")
-                data = {}
-                i=0
-                for option in soup.find_all('option'):
-                    data[i] = option['value']
-                    i = i + 1
-                print("Lesson id: ", random.choice(data))
-                val = random.choice(data)
-                data = {
-                    'learn': 'Tanulj teve!',
-                    'tudomany': val
-                }
-                self.s.post(TANIT_URL , data=data)
-                print('Tanítás Vége')
-                self.dosleep()
-            else:
-                data = {
-                    'farmdoit': 'tanit',
-                    'learn': 'Tanulj teve!'
-                }
-                self.s.post(TANIT_URL , data=data)
-                print('Learning success!!!')
-                self.dosleep()
-            return True
-                
-    def Food(self):
-        r = self.s.get(self.MYTEVE_URL)
-        self.dosleep()
-        etet = 0
-        if ('Mehet!' in r.text != True):
-                etet = False
-        while (etet < 10):
-            data = {
-                'kaja': '1',
-                'pia': '1',
-                'etet': 'Mehet!',
-            }
-            r = self.s.post(self.MYTEVE_URL , data=data)
-            etet = etet + 1
-            self.dosleep()
-        print('Feeding success!!!')
-        self.dosleep()
-        return True
-        
-    def Guess(self):
-        self.s.post('https://teveclub.hu/egyszam.pet',data={'honnan':'403','tipp':'Ez a tippem!'})
-        print('Guess Game success!!!')
-        self.dosleep()
-        return True
-
-    def Bot(self):
-        if self.Login():
-            try:
-                self.Food()
-            except:
-                print("Feeding failed!!!")
-            try:
-                self.Learn()
-            except:
-                print("Learning failed!!!")
-            try:
-                self.Guess()
-            except:
-                print("Guess Game failed!!")
-            time.sleep(3)
-        else:
-            print("Login failed!!!")
-            
-
-def test_teveclub():
-    if len(sys.argv) > 1:
-        print(f"Argument 1: {sys.argv[1]}, Argument 2: {sys.argv[2]}")
-    else:
-        print("No arguments provided")
-        sys.exit(1)
-        
-    USER = str(sys.argv[1])
-    PASSW = str(sys.argv[2])
-
-    s = None
-    
-    teve = teveclub(USER, PASSW)
-    teve.Bot()
 
 class LoginApp:
     def __init__(self, root):
         self.root = root
+        # Create main window
         self.root.title("Teveclub")
-        self.root.geometry("400x400")
+        self.root.geometry("400x400")  # Increased height to accommodate status area
         self.root.resizable(False, False)
         self.credentials = "credentials.json"
         self.username = ""
         self.password = ""
-        self.teve = None
+        self.teve = None  # Store the session object
         
         self.setup_icon()
         self.show_login_panel()
         
     def get_icon(self):
+        """Enhanced icon path resolution with multiple fallbacks"""
+        # Try development location first
         dev_icon = Path("icon.ico")
         if dev_icon.exists():
             return str(dev_icon)
 
+        # PyInstaller bundle locations
         if getattr(sys, 'frozen', False):
+            # 1. MEIPASS (onefile mode)
             meipass_icon = Path(getattr(sys, '_MEIPASS', '')) / "icon.ico"
             if meipass_icon.exists():
                 return str(meipass_icon)
             
+            # 2. Executable directory (onedir mode)
             exe_dir_icon = Path(sys.executable).parent / "icon.ico"
             if exe_dir_icon.exists():
                 return str(exe_dir_icon)
 
+        # cx_Freeze bundle location
         if hasattr(sys, 'frozen') and not getattr(sys, 'frozen', False):
             lib_icon = Path(sys.executable).parent / "lib" / "icon.ico"
             if lib_icon.exists():
                 return str(lib_icon)
 
+        # Final fallback to original behavior
         return "icon.ico" if not getattr(sys, 'frozen', False) else os.path.join(getattr(sys, '_MEIPASS', ''), "icon.ico")
 
     def setup_icon(self):
+        """Safe icon loading with multiple attempts"""
         icon_path = self.get_icon()
         if not Path(icon_path).exists():
-            return
+            return  # Skip if icon doesn't exist
             
         try:
             self.root.iconbitmap(icon_path)
         except:
             try:
+                # Alternative Linux/Mac approach
                 img = tk.PhotoImage(file=icon_path)
                 self.root.tk.call('wm', 'iconphoto', self.root._w, img)
             except:
-                pass
+                pass  # Complete silent fallback
                 
     def clear_window(self):
+        """Remove all widgets from the window"""
         for widget in self.root.winfo_children():
             widget.destroy()
     
     def show_login_panel(self):
+        """Display the login interface"""
         self.clear_window()
         
+        # Title
         title_label = tk.Label(self.root, text="Teveclub Login", font=("Arial", 16, "bold"))
         title_label.pack(pady=(20, 10))
         
+        # Username Label and Entry
         username_label = tk.Label(self.root, text="Username:")
         username_label.pack(pady=(20, 0))
 
         self.username_entry = tk.Entry(self.root, width=30)
         self.username_entry.pack(pady=5)
         
+        # Password Label and Entry
         password_label = tk.Label(self.root, text="Password:")
         password_label.pack()
 
         self.password_entry = tk.Entry(self.root, width=30, show="*")
         self.password_entry.pack(pady=5)
         
+        # Try to load saved credentials
         credentials = self.load_credentials()
         if credentials:
             self.username_entry.insert(0, credentials.get("username", ""))
             self.password_entry.insert(0, credentials.get("password", ""))
             
+        # Login Button
         login_button = tk.Button(self.root, text="Login", command=self.on_login_click, width=15)
         login_button.pack(pady=10)
         
+        # Status area for login panel
         self.login_status = tk.Label(self.root, text="", fg="blue", wraplength=350)
         self.login_status.pack(pady=10, fill="x")
     
     def show_main_panel(self):
+        """Display the main interface after successful login"""
         self.clear_window()
         
+        # Welcome message
         welcome_label = tk.Label(self.root, text=f"Welcome, {self.username}!", font=("Arial", 14))
         welcome_label.pack(pady=(20, 10))
         
+        # Action buttons
         eat_button = tk.Button(self.root, text="Feed Pet", command=self.feed_pet, width=20, height=2)
         eat_button.pack(pady=10)
         
@@ -257,9 +124,11 @@ class LoginApp:
         guess_button = tk.Button(self.root, text="Guess Game", command=self.guess_game, width=20, height=2)
         guess_button.pack(pady=10)
         
+        # Exit button
         exit_button = tk.Button(self.root, text="Exit", command=self.exit_app, width=20, height=2)
         exit_button.pack(pady=10)
         
+        # Status area for main panel
         self.status_frame = tk.Frame(self.root)
         self.status_frame.pack(pady=10, fill="x", padx=20)
         
@@ -270,9 +139,11 @@ class LoginApp:
         self.status_text.pack(anchor="w", fill="x")
     
     def update_status(self, message, color="black"):
+        """Update the status text with a message and color"""
         self.status_text.config(text=message, fg=color)
     
     def load_credentials(self):
+        """Load saved credentials from JSON file if it exists"""
         if os.path.exists(self.credentials):
             try:
                 with open(self.credentials, 'r') as f:
@@ -282,6 +153,7 @@ class LoginApp:
         return None
 
     def save_credentials(self):
+        """Save credentials to JSON file"""
         try:
             with open(self.credentials, 'w') as f:
                 json.dump({"username": self.username, "password": self.password}, f)
@@ -296,22 +168,26 @@ class LoginApp:
         if not self.username or not self.password:
             self.login_status.config(text="Please enter both username and password", fg="red")
         else:
+            # Try to login
             self.login_status.config(text="Logging in...", fg="blue")
-            self.root.update()
+            self.root.update()  # Update the UI to show the status
             
             self.teve = teveclub(self.username, self.password)
             if self.teve.Login():
                 self.login_status.config(text="Login successful!", fg="green")
+                # Save credentials if login was successful
                 if self.save_credentials():
                     pass
                 else:
                     self.login_status.config(text="Login successful but could not save credentials", fg="orange")
                 
+                # Wait a moment before switching panels
                 self.root.after(1000, self.show_main_panel)
             else:
                 self.login_status.config(text="Login failed! Please check your credentials.", fg="red")
 
     def feed_pet(self):
+        """Handle the feed action"""
         if self.teve:
             self.update_status("Feeding your pet...", "blue")
             try:
@@ -326,6 +202,7 @@ class LoginApp:
             self.update_status("Not logged in. Please login again.", "red")
 
     def learn(self):
+        """Handle the learn action"""
         if self.teve:
             self.update_status("Learning in progress...", "blue")
             try:
@@ -340,6 +217,7 @@ class LoginApp:
             self.update_status("Not logged in. Please login again.", "red")
 
     def guess_game(self):
+        """Handle the guess game action"""
         if self.teve:
             self.update_status("Playing guess game...", "blue")
             try:
@@ -354,10 +232,12 @@ class LoginApp:
             self.update_status("Not logged in. Please login again.", "red")
 
     def exit_app(self):
+        """Exit the application"""
         self.root.quit()
 
 
 if __name__ == "__main__":
     root = tk.Tk()
     app = LoginApp(root)
+    # Run the application
     root.mainloop()
