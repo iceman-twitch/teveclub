@@ -54,7 +54,7 @@ class teveclub():
         return random.choice(user_agents)
     
     def dosleep(self):
-        time.sleep(min(random.expovariate(1.6), 3.0))
+        time.sleep(min(random.expovariate(0.6), 1.0))
     
     def GetSession(self):
         return self.s
