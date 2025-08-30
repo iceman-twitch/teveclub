@@ -1,9 +1,11 @@
 # -*- mode: python ; coding: utf-8 -*-
 
+
 block_cipher = None
 
+
 a = Analysis(
-    ['main.py'],
+    ['form.py'],
     pathex=[],
     binaries=[],
     datas=[],
@@ -17,10 +19,6 @@ a = Analysis(
     cipher=block_cipher,
     noarchive=False,
 )
-
-# Add icon if needed
-icon_path = 'icon.ico' if os.path.exists('icon.ico') else None
-
 pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
 
 exe = EXE(
@@ -37,11 +35,11 @@ exe = EXE(
     upx=True,
     upx_exclude=[],
     runtime_tmpdir=None,
-    console=False,  # Set to True if you want to see console output
-    icon=icon_path,
+    console=False,
     disable_windowed_traceback=False,
     argv_emulation=False,
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
+    icon=['icon.ico'],
 )
