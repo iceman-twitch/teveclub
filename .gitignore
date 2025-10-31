@@ -30,3 +30,5 @@ credentials.json
 # System files
 .DS_Store
 Thumbs.db
+
+*.spec

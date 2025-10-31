@@ -5,7 +5,7 @@ block_cipher = None
 
 
 a = Analysis(
-    ['form.py'],
+    ['main.py'],
     pathex=[],
     binaries=[],
     datas=[],
