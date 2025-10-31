@@ -8,9 +8,10 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 from pathlib import Path
 import threading
+import os
 from src.bot_core import TeveClub
 from src.config import CREDENTIALS_FILE
-from src.utils import load_credentials, save_credentials, get_icon_path
+from src.utils import load_credentials, save_credentials, get_icon_path, get_writable_path
 
 
 class RoundedButton(tk.Canvas):
@@ -214,6 +215,9 @@ class LoginApp:
         self.teve = None  # Store the bot instance
         self._operation_running = False  # Track if operation is in progress
         
+        # Get writable path for credentials
+        self.credentials_path = get_writable_path(CREDENTIALS_FILE)
+        
         self.setup_icon()
         self.show_login_panel()
     
@@ -331,7 +335,7 @@ class LoginApp:
         self.password_entry.pack()
         
         # Try to load saved credentials
-        credentials = load_credentials(CREDENTIALS_FILE)
+        credentials = load_credentials(self.credentials_path)
         if credentials:
             username = credentials.get("username", "")
             password = credentials.get("password", "")
@@ -494,8 +498,17 @@ class LoginApp:
                 self.safe_ui_update(lambda: self.login_status.config(
                     text="✅ Login successful!", fg=self.SUCCESS_COLOR))
                 
-                # Save credentials
-                save_credentials(CREDENTIALS_FILE, self.username, self.password)
+                # Save credentials with better error handling
+                success, error_msg = save_credentials(self.credentials_path, self.username, self.password)
+                if not success:
+                    # Show warning but don't block - login was successful
+                    print(f"Warning: Could not save credentials: {error_msg}")
+                    self.safe_ui_update(lambda: messagebox.showwarning(
+                        "Credentials Not Saved",
+                        f"Login successful, but credentials could not be saved:\n\n{error_msg}\n\n"
+                        "You'll need to enter your password next time.\n\n"
+                        "Tip: Try running as Administrator or check file permissions."
+                    ))
                 
                 # Switch to main panel after delay
                 self.safe_ui_update(lambda: self.root.after(1000, self.show_main_panel))

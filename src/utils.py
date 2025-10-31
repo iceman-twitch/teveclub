@@ -7,6 +7,7 @@ import json
 import os
 from pathlib import Path
 import sys
+import ctypes
 from src.config import DEFAULT_USER_AGENTS, USER_AGENTS_FILE, ICON_FILE
 
 
@@ -69,7 +70,7 @@ def load_credentials(credentials_file):
 
 def save_credentials(credentials_file, username, password):
     """
-    Save credentials to JSON file
+    Save credentials to JSON file with better error handling and permissions
     
     Args:
         credentials_file (str): Path to the credentials file
@@ -77,14 +78,46 @@ def save_credentials(credentials_file, username, password):
         password (str): Password to save
         
     Returns:
-        bool: True if successful, False otherwise
+        tuple: (success: bool, error_message: str or None)
     """
     try:
-        with open(credentials_file, 'w') as f:
-            json.dump({"username": username, "password": password}, f)
-        return True
-    except (PermissionError, TypeError):
-        return False
+        # Get the absolute path to ensure we're writing to the correct location
+        abs_path = os.path.abspath(credentials_file)
+        directory = os.path.dirname(abs_path)
+        
+        # Create directory if it doesn't exist
+        if directory and not os.path.exists(directory):
+            try:
+                os.makedirs(directory, exist_ok=True)
+            except OSError as e:
+                return False, f"Cannot create directory: {str(e)}"
+        
+        # Check if we have write permissions
+        if os.path.exists(abs_path):
+            # File exists, check if writable
+            if not os.access(abs_path, os.W_OK):
+                return False, f"No write permission for: {abs_path}"
+        else:
+            # File doesn't exist, check if directory is writable
+            if directory and not os.access(directory, os.W_OK):
+                return False, f"No write permission in directory: {directory}"
+        
+        # Try to write the file
+        with open(abs_path, 'w', encoding='utf-8') as f:
+            json.dump({"username": username, "password": password}, f, indent=2)
+        
+        # Verify the file was created
+        if not os.path.exists(abs_path):
+            return False, "File was not created"
+        
+        return True, None
+        
+    except PermissionError as e:
+        return False, f"Permission denied: {str(e)}"
+    except OSError as e:
+        return False, f"OS error: {str(e)}"
+    except Exception as e:
+        return False, f"Unexpected error: {str(e)}"
 
 
 def get_icon_path():
@@ -119,3 +152,50 @@ def get_icon_path():
 
     # Final fallback to original behavior
     return ICON_FILE if not getattr(sys, 'frozen', False) else os.path.join(getattr(sys, '_MEIPASS', ''), ICON_FILE)
+
+
+def is_admin():
+    """
+    Check if the script is running with administrator privileges
+    
+    Returns:
+        bool: True if running as admin, False otherwise
+    """
+    try:
+        return ctypes.windll.shell32.IsUserAnAdmin()
+    except:
+        return False
+
+
+def get_writable_path(filename):
+    """
+    Get a writable path for storing files
+    Tries current directory first, falls back to user's AppData if needed
+    
+    Args:
+        filename (str): Name of the file to create
+        
+    Returns:
+        str: Full path where the file can be written
+    """
+    # Try current directory first
+    current_dir_path = os.path.abspath(filename)
+    current_dir = os.path.dirname(current_dir_path) if os.path.dirname(current_dir_path) else '.'
+    
+    if os.access(current_dir, os.W_OK):
+        return current_dir_path
+    
+    # Fallback to user's AppData\Local folder (always writable)
+    try:
+        appdata = os.environ.get('LOCALAPPDATA')
+        if appdata:
+            app_folder = os.path.join(appdata, 'TeveClub')
+            os.makedirs(app_folder, exist_ok=True)
+            return os.path.join(app_folder, filename)
+    except:
+        pass
+    
+    # Last resort: temp directory
+    import tempfile
+    temp_dir = tempfile.gettempdir()
+    return os.path.join(temp_dir, 'TeveClub', filename)
