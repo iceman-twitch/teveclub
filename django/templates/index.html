@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🐪 Teveclub Bot</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    {% csrf_token %}
+    <div class="container">
+        <!-- Login Panel -->
+        <div id="login-panel" class="panel">
+            <div class="header">
+                <h1>🐪 Teveclub</h1>
+                <p class="subtitle">Bot Control Panel</p>
+            </div>
+            
+            <form id="login-form" class="form">
+                <div class="form-group">
+                    <label for="username">👤 Username</label>
+                    <input type="text" id="username" placeholder="Enter your username" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">🔒 Password</label>
+                    <input type="password" id="password" placeholder="Enter your password" required>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">
+                    <span class="btn-text">🚀 Login</span>
+                    <span class="spinner" style="display: none;"></span>
+                </button>
+                
+                <div id="login-status" class="status-message"></div>
+            </form>
+        </div>
+        
+        <!-- Main Panel -->
+        <div id="main-panel" class="panel" style="display: none;">
+            <div class="header">
+                <h2 id="welcome-text">Welcome! 🐪</h2>
+                <p class="subtitle">Ready to manage your Teve</p>
+            </div>
+            
+            <div class="actions">
+                <button id="feed-btn" class="btn btn-action">
+                    <span class="btn-icon">🍖</span>
+                    <span class="btn-label">Feed Pet</span>
+                </button>
+                
+                <button id="learn-btn" class="btn btn-action">
+                    <span class="btn-icon">📚</span>
+                    <span class="btn-label">Learn Tricks</span>
+                </button>
+                
+                <button id="guess-btn" class="btn btn-action">
+                    <span class="btn-icon">🎲</span>
+                    <span class="btn-label">Guess Game</span>
+                </button>
+                
+                <button id="logout-btn" class="btn btn-secondary">
+                    <span class="btn-icon">🚪</span>
+                    <span class="btn-label">Logout</span>
+                </button>
+            </div>
+            
+            <div class="status-box">
+                <div class="status-header">📊 Status</div>
+                <div id="main-status" class="status-content">Ready</div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="{% static 'js/app.js' %}"></script>
+</body>
+</html>
