@@ -1,4 +1,4 @@
-/* Teveclub Bot - Brownish Rounded Theme */
+/* Teveclub Bot - Official Teveclub.hu Theme */
 
 * {
     margin: 0;
@@ -7,8 +7,8 @@
 }
 
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #8B7355 0%, #A0826D 50%, #C9B49A 100%);
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    background: #E8D4A0 url('https://teveclub.hu/img_des/bg.jpg') repeat;
     min-height: 100vh;
     display: flex;
     justify-content: center;
@@ -22,11 +22,24 @@ body {
 }
 
 .panel {
-    background: rgba(255, 255, 255, 0.95);
-    border-radius: 25px;
+    background: #FFF9E6;
+    border: 3px solid #8B6914;
+    border-radius: 15px;
     padding: 40px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    backdrop-filter: blur(10px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    position: relative;
+}
+
+.panel::before {
+    content: '';
+    position: absolute;
+    top: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 80px;
+    background: url('https://teveclub.hu/img_des/palm_right.jpg') no-repeat center;
+    background-size: contain;
 }
 
 .header {
@@ -35,21 +48,23 @@ body {
 }
 
 .header h1 {
-    color: #6B4423;
+    color: #8B4513;
     font-size: 2.5em;
     font-weight: bold;
     margin-bottom: 10px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .header h2 {
-    color: #6B4423;
+    color: #8B4513;
     font-size: 2em;
     font-weight: bold;
     margin-bottom: 10px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .subtitle {
-    color: #8B6F47;
+    color: #6B4423;
     font-size: 1.1em;
 }
 
@@ -74,17 +89,18 @@ body {
 
 .form-group input {
     padding: 15px 20px;
-    border: 2px solid #C9B49A;
+    border: 2px solid #D4A574;
     border-radius: 15px;
     font-size: 1em;
     background: white;
     transition: all 0.3s ease;
+    font-family: Verdana, Arial, sans-serif;
 }
 
 .form-group input:focus {
     outline: none;
-    border-color: #8B6F47;
-    box-shadow: 0 0 0 3px rgba(139, 111, 71, 0.1);
+    border-color: #8B6914;
+    box-shadow: 0 0 0 3px rgba(139, 105, 20, 0.2);
 }
 
 /* Button Styles */
@@ -106,14 +122,17 @@ body {
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, #8B6F47 0%, #A0826D 100%);
-    color: white;
-    box-shadow: 0 4px 15px rgba(139, 111, 71, 0.3);
+    background: linear-gradient(135deg, #D4A574 0%, #B8956A 100%);
+    color: #4A3820;
+    font-weight: bold;
+    box-shadow: 0 4px 15px rgba(139, 105, 20, 0.4);
+    border: 2px solid #8B6914;
 }
 
 .btn-primary:hover:not(:disabled) {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(139, 111, 71, 0.4);
+    box-shadow: 0 6px 20px rgba(139, 105, 20, 0.5);
+    background: linear-gradient(135deg, #E8C090 0%, #D4A574 100%);
 }
 
 .btn-primary:active {
@@ -121,20 +140,24 @@ body {
 }
 
 .btn-secondary {
-    background: linear-gradient(135deg, #C9B49A 0%, #D4C4B0 100%);
-    color: #6B4423;
-    box-shadow: 0 4px 15px rgba(201, 180, 154, 0.3);
+    background: linear-gradient(135deg, #E8D4A0 0%, #D4C4B0 100%);
+    color: #4A3820;
+    font-weight: bold;
+    box-shadow: 0 4px 15px rgba(139, 105, 20, 0.3);
+    border: 2px solid #B8956A;
 }
 
 .btn-secondary:hover:not(:disabled) {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(201, 180, 154, 0.4);
+    box-shadow: 0 6px 20px rgba(139, 105, 20, 0.4);
+    background: linear-gradient(135deg, #F0E0B0 0%, #E8D4A0 100%);
 }
 
 .btn-action {
-    background: white;
-    color: #6B4423;
-    border: 2px solid #C9B49A;
+    background: #FFF9E6;
+    color: #4A3820;
+    font-weight: bold;
+    border: 3px solid #D4A574;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -143,11 +166,11 @@ body {
 }
 
 .btn-action:hover:not(:disabled) {
-    background: linear-gradient(135deg, #8B6F47 0%, #A0826D 100%);
-    color: white;
-    border-color: #8B6F47;
+    background: linear-gradient(135deg, #D4A574 0%, #B8956A 100%);
+    color: #2A2010;
+    border-color: #8B6914;
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(139, 111, 71, 0.3);
+    box-shadow: 0 6px 20px rgba(139, 105, 20, 0.4);
 }
 
 .btn-icon {
@@ -172,27 +195,29 @@ body {
 
 /* Status Box */
 .status-box {
-    background: linear-gradient(135deg, #F5EFE7 0%, #FAF6F0 100%);
+    background: #FFF9E6;
     border-radius: 15px;
     overflow: hidden;
-    border: 2px solid #C9B49A;
+    border: 3px solid #D4A574;
 }
 
 .status-header {
-    background: linear-gradient(135deg, #8B6F47 0%, #A0826D 100%);
-    color: white;
+    background: linear-gradient(135deg, #D4A574 0%, #B8956A 100%);
+    color: #2A2010;
     padding: 12px 20px;
-    font-weight: 600;
+    font-weight: bold;
+    border-bottom: 2px solid #8B6914;
 }
 
 .status-content {
     padding: 20px;
-    color: #6B4423;
+    color: #4A3820;
     max-height: 300px;
     overflow-y: auto;
     white-space: pre-wrap;
     font-size: 0.95em;
     line-height: 1.6;
+    background: #FFFDF5;
 }
 
 /* Status Messages */
@@ -242,21 +267,22 @@ body {
 
 /* Scrollbar Styling */
 .status-content::-webkit-scrollbar {
-    width: 8px;
+    width: 10px;
 }
 
 .status-content::-webkit-scrollbar-track {
-    background: #F5EFE7;
+    background: #FFF9E6;
     border-radius: 10px;
 }
 
 .status-content::-webkit-scrollbar-thumb {
-    background: #C9B49A;
+    background: #D4A574;
     border-radius: 10px;
+    border: 2px solid #FFF9E6;
 }
 
 .status-content::-webkit-scrollbar-thumb:hover {
-    background: #8B6F47;
+    background: #B8956A;
 }
 
 /* Responsive Design */
