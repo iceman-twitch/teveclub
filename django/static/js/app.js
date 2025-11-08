@@ -1,13 +1,14 @@
 // Teveclub Bot - Frontend API Client
+// Uses Django proxy to communicate with teveclub.hu
 
 class TeveclubAPI {
     constructor() {
-        this.baseURL = window.location.origin;
+        this.proxyURL = '/api/proxy/';
+        this.teveclubBase = 'https://teveclub.hu';
         this.csrfToken = this.getCSRFToken();
     }
 
     getCSRFToken() {
-        // Try to get from cookie first
         const name = 'csrftoken';
         let cookieValue = null;
         if (document.cookie && document.cookie !== '') {
@@ -20,53 +21,30 @@ class TeveclubAPI {
                 }
             }
         }
-        
-        // If no cookie, try to get from input field
-        if (!cookieValue) {
-            const csrfInput = document.querySelector('input[name="csrfmiddlewaretoken"]');
-            if (csrfInput) {
-                cookieValue = csrfInput.value;
-            }
-        }
-        
         return cookieValue;
     }
 
-    async request(endpoint, method = 'GET', data = null) {
+    async proxyRequest(url, method = 'GET', data = null) {
         const options = {
-            method: method,
+            method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'X-CSRFToken': this.csrfToken
             },
-            credentials: 'same-origin'
+            credentials: 'same-origin',
+            body: JSON.stringify({
+                url: url,
+                method: method,
+                data: data
+            })
         };
 
-        // Only add CSRF token if we have one
-        if (this.csrfToken) {
-            options.headers['X-CSRFToken'] = this.csrfToken;
-        }
-
-        if (data) {
-            options.body = JSON.stringify(data);
-        }
-
         try {
-            const response = await fetch(`${this.baseURL}${endpoint}`, options);
-            const text = await response.text();
-            
-            // Try to parse as JSON
-            try {
-                const result = JSON.parse(text);
-                return result;
-            } catch (parseError) {
-                // If not JSON, return the text (likely an error page)
-                console.error('Response is not JSON:', text);
-                return {
-                    success: false,
-                    message: `Server error: Response is not JSON. Check Django console for errors.`
-                };
-            }
+            const response = await fetch(this.proxyURL, options);
+            const result = await response.json();
+            return result;
         } catch (error) {
+            console.error('Proxy request error:', error);
             return {
                 success: false,
                 message: `Network error: ${error.message}`
@@ -75,23 +53,96 @@ class TeveclubAPI {
     }
 
     async login(username, password) {
-        return await this.request('/api/login/', 'POST', { username, password });
+        const result = await this.proxyRequest(
+            `${this.teveclubBase}/`,
+            'POST',
+            {
+                tevenev: username,
+                pass: password,
+                x: '38',
+                y: '42',
+                login: 'Gyere!'
+            }
+        );
+        
+        console.log('Login result:', result);
+        console.log('Response contains success marker:', result.html && result.html.includes('Teve Legyen Veled'));
+        
+        if (result.success && result.html && result.html.includes('Teve Legyen Veled')) {
+            return { success: true, message: 'Login successful' };
+        } else if (result.html && result.html.includes('Sikertelen')) {
+            return { success: false, message: 'Invalid username or password' };
+        } else if (!result.success) {
+            return { success: false, message: result.message || 'Login failed' };
+        } else {
+            return { success: false, message: 'Invalid credentials or unexpected response' };
+        }
     }
 
     async feed() {
-        return await this.request('/api/feed/', 'POST');
+        // Check if feeding is available
+        const checkResult = await this.proxyRequest(`${this.teveclubBase}/myteve.pet`, 'GET');
+        
+        if (!checkResult.success) {
+            return { success: false, message: 'Failed to check feeding status' };
+        }
+        
+        if (!checkResult.html.includes('Mehet!')) {
+            return { success: true, message: '✅ Pet is already well-fed! No feeding needed.' };
+        }
+        
+        // Perform feeding
+        const feedResult = await this.proxyRequest(
+            `${this.teveclubBase}/myteve.pet`,
+            'POST',
+            { eat: '1' }
+        );
+        
+        if (feedResult.success) {
+            return { success: true, message: '✅ Pet fed successfully!' };
+        } else {
+            return { success: false, message: '❌ Feeding failed' };
+        }
     }
 
     async learn() {
-        return await this.request('/api/learn/', 'POST');
+        const result = await this.proxyRequest(
+            `${this.teveclubBase}/tanit.pet`,
+            'GET'
+        );
+        
+        if (result.success && result.html) {
+            if (result.html.includes('sikeresen megtanult')) {
+                return { success: true, message: '✅ Learning successful!' };
+            } else {
+                return { success: false, message: 'No more tricks to learn' };
+            }
+        } else {
+            return { success: false, message: '❌ Learning failed' };
+        }
     }
 
     async guess() {
-        return await this.request('/api/guess/', 'POST');
+        const result = await this.proxyRequest(
+            `${this.teveclubBase}/egyszam.pet`,
+            'GET'
+        );
+        
+        if (result.success) {
+            return { success: true, message: '✅ Guess game completed!' };
+        } else {
+            return { success: false, message: '❌ Guess game failed' };
+        }
     }
 
     async logout() {
-        return await this.request('/api/logout/', 'POST');
+        const result = await this.proxyRequest(
+            `${this.teveclubBase}/`,
+            'POST',
+            { logout: '1' }
+        );
+        
+        return { success: true, message: 'Logged out successfully' };
     }
 }
 
