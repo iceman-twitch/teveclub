@@ -9,6 +9,9 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 import requests
 import json
+import re
+from bs4 import BeautifulSoup
+from lxml import html as lxml_html
 
 
 # Store sessions per Django session
@@ -144,6 +147,186 @@ def proxy(request):
         }, status=500)
     except Exception as e:
         print(f"[PROXY] Unexpected error: {e}")
+        import traceback
+        traceback.print_exc()
+        return JsonResponse({
+            'success': False,
+            'message': f'Error: {str(e)}'
+        }, status=500)
+
+
+@csrf_exempt
+@require_http_methods(["GET"])
+def get_current_trick(request):
+    """
+    Fetch current trick text from myteve.pet
+    Returns: {trick: str}
+    """
+    try:
+        # Get persistent session
+        session = get_session_for_user(request)
+        
+        # Fetch myteve.pet page
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        }
+        
+        response = session.get(
+            'https://teveclub.hu/myteve.pet',
+            headers=headers,
+            timeout=30,
+            verify=False
+        )
+        
+        if response.status_code != 200:
+            return JsonResponse({
+                'success': False,
+                'message': f'Failed to fetch myteve.pet: {response.status_code}'
+            })
+        
+        # Parse HTML with lxml
+        tree = lxml_html.fromstring(response.content)
+        
+        # Get trick text using xpath - try multiple possible paths
+        trick_elements = tree.xpath('/html/body/center/table/tbody/tr[1]/td[2]/center/table[3]/tbody/tr/td/table/tbody/tr[3]/td[2]/div[1]')
+        
+        if not trick_elements:
+            # Try without tbody (browsers auto-insert tbody but HTML might not have it)
+            trick_elements = tree.xpath('/html/body/center/table/tr[1]/td[2]/center/table[3]/tr/td/table/tr[3]/td[2]/div[1]')
+        
+        if not trick_elements:
+            # Try more flexible pattern looking for specific text
+            trick_elements = tree.xpath('//div[contains(text(), "Tanult trükk") or contains(text(), "trükk")]')
+        
+        trick_text = None
+        if trick_elements:
+            # Get all text nodes before <br> tag
+            div_element = trick_elements[0]
+            text_parts = []
+            
+            # Iterate through text content and child elements
+            if div_element.text:
+                text_parts.append(div_element.text)
+            
+            for child in div_element:
+                if child.tag == 'br':
+                    break  # Stop at first <br>
+                if child.text:
+                    text_parts.append(child.text)
+                if child.tail:
+                    text_parts.append(child.tail)
+            
+            trick_text = ''.join(text_parts).strip()
+            print(f"[GET_CURRENT_TRICK] Found trick: {trick_text}")
+        else:
+            # Debug output
+            print("[GET_CURRENT_TRICK] Trick element not found, trying to find any table structure")
+            tables = tree.xpath('//table')
+            print(f"[GET_CURRENT_TRICK] Found {len(tables)} tables in HTML")
+        
+        return JsonResponse({
+            'success': True,
+            'trick': trick_text
+        })
+        
+    except Exception as e:
+        print(f"[GET_CURRENT_TRICK] Error: {e}")
+        import traceback
+        traceback.print_exc()
+        return JsonResponse({
+            'success': False,
+            'message': f'Error: {str(e)}'
+        }, status=500)
+
+
+@csrf_exempt
+@require_http_methods(["GET"])
+def get_current_food_drink(request):
+    """
+    Fetch and parse current food/drink from myteve.pet
+    Returns: {foodId: int, foodIcon: str, drinkId: int, drinkIcon: str}
+    """
+    try:
+        # Get persistent session
+        session = get_session_for_user(request)
+        
+        # Fetch myteve.pet page
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        }
+        
+        response = session.get(
+            'https://teveclub.hu/myteve.pet',
+            headers=headers,
+            timeout=30,
+            verify=False
+        )
+        
+        if response.status_code != 200:
+            return JsonResponse({
+                'success': False,
+                'message': f'Failed to fetch myteve.pet: {response.status_code}'
+            })
+        
+        html = response.text
+        
+        # Parse HTML to find food and drink images
+        result = {
+            'foodId': None,
+            'foodIcon': None,
+            'drinkId': None,
+            'drinkIcon': None
+        }
+        
+        # Look for food: "Etet\u0151" or "Eteto" followed by image
+        # Try multiple patterns
+        food_match = re.search(r'Etet[\u0151o][^<]*<[^>]*<a[^>]*>.*?files/(\d+)\.gif', html, re.IGNORECASE | re.DOTALL)
+        if not food_match:
+            food_match = re.search(r'Etet[\u0151o].*?(\d+)\.gif', html, re.IGNORECASE | re.DOTALL)
+        if not food_match:
+            # Try simpler pattern matching any path before number.gif
+            food_match = re.search(r'Etet[\u0151o].*?/(\d+)\.gif', html, re.IGNORECASE | re.DOTALL)
+        
+        if food_match:
+            result['foodId'] = int(food_match.group(1))
+            result['foodIcon'] = f"{food_match.group(1)}.gif"
+            print(f"[GET_FOOD_DRINK] Found food: {result['foodId']}")
+        else:
+            # Debug: show what we're searching in
+            food_section = re.search(r'Etet[\u0151o].{0,200}', html, re.IGNORECASE | re.DOTALL)
+            if food_section:
+                print(f"[GET_FOOD_DRINK] Food section sample: {food_section.group(0)}")
+            else:
+                print("[GET_FOOD_DRINK] Food keyword not found in HTML")
+        
+        # Look for drink: "Itat\u00f3" or "Itato" followed by image
+        drink_match = re.search(r'Itat[\u00f3o][^<]*<[^>]*<a[^>]*>.*?files/(\d+)\.gif', html, re.IGNORECASE | re.DOTALL)
+        if not drink_match:
+            drink_match = re.search(r'Itat[\u00f3o].*?(\d+)\.gif', html, re.IGNORECASE | re.DOTALL)
+        if not drink_match:
+            drink_match = re.search(r'Itat[\u00f3o].*?/(\d+)\.gif', html, re.IGNORECASE | re.DOTALL)
+            
+        if drink_match:
+            result['drinkId'] = int(drink_match.group(1))
+            result['drinkIcon'] = f"{drink_match.group(1)}.gif"
+            print(f"[GET_FOOD_DRINK] Found drink: {result['drinkId']}")
+        else:
+            # Debug: show what we're searching in
+            drink_section = re.search(r'Itat[\u00f3o].{0,200}', html, re.IGNORECASE | re.DOTALL)
+            if drink_section:
+                print(f"[GET_FOOD_DRINK] Drink section sample: {drink_section.group(0)}")
+            else:
+                print("[GET_FOOD_DRINK] Drink keyword not found in HTML")
+        
+        return JsonResponse({
+            'success': True,
+            'data': result
+        })
+        
+    except Exception as e:
+        print(f"[GET_FOOD_DRINK] Error: {e}")
         import traceback
         traceback.print_exc()
         return JsonResponse({

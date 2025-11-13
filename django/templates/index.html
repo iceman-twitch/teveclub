@@ -47,7 +47,7 @@
         <div id="main-panel" class="panel" style="display: none;">
             <div class="header">
                 <h2 id="welcome-text">Welcome! 🐪</h2>
-                <p class="subtitle">Ready to manage your Teve</p>
+                <p class="subtitle">Ready to manage your Camel</p>
             </div>
             
             <div class="actions">
@@ -55,6 +55,32 @@
                     <span class="btn-icon">🍖</span>
                     <span class="btn-label">Feed Pet</span>
                 </button>
+
+                <!-- Food Dropdown -->
+                <div id="food-dropdown" class="dropdown-container">
+                    <button id="food-toggle-btn" class="btn btn-action" type="button">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span class="btn-icon" id="food-icon"></span>
+                            <span class="btn-label">Set Food</span>
+                        </div>
+                        <span class="dropdown-arrow">▼</span>
+                    </button>
+                    <div id="food-list" class="dropdown-list" style="display: none;"></div>
+                </div>
+
+                <!-- Drink Dropdown -->
+                <div id="drink-dropdown" class="dropdown-container">
+                    <button id="drink-toggle-btn" class="btn btn-action" type="button">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span class="btn-icon" id="drink-icon"></span>
+                            <span class="btn-label">Set Drink</span>
+                        </div>
+                        <span class="dropdown-arrow">▼</span>
+                    </button>
+                    <div id="drink-list" class="dropdown-list" style="display: none;"></div>
+                </div>
+                
+                <div id="trick-text" style="display: none; padding: 10px; margin: 10px 0; background: #FFF9E6; border: 2px solid #8B6914; border-radius: 8px; text-align: center; font-weight: bold; color: #4A3820;"></div>
                 
                 <button id="learn-btn" class="btn btn-action">
                     <span class="btn-icon">📚</span>

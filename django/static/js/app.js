@@ -135,6 +135,34 @@ class TeveclubAPI {
         }
     }
 
+    async setFood(foodId) {
+        const result = await this.proxyRequest(
+            `${this.teveclubBase}/setfood.pet`,
+            'POST',
+            { kaja: foodId.toString() }
+        );
+        
+        if (result.success && result.html) {
+            return { success: true, message: '✅ Food selection updated!' };
+        } else {
+            return { success: false, message: '❌ Food selection failed' };
+        }
+    }
+
+    async setDrink(drinkId) {
+        const result = await this.proxyRequest(
+            `${this.teveclubBase}/setdrink.pet`,
+            'POST',
+            { kaja: drinkId.toString() }
+        );
+        
+        if (result.success && result.html) {
+            return { success: true, message: '✅ Drink selection updated!' };
+        } else {
+            return { success: false, message: '❌ Drink selection failed' };
+        }
+    }
+
     async logout() {
         const result = await this.proxyRequest(
             `${this.teveclubBase}/`,
@@ -143,6 +171,76 @@ class TeveclubAPI {
         );
         
         return { success: true, message: 'Logged out successfully' };
+    }
+
+    async getCurrentFoodDrink() {
+        try {
+            const response = await fetch('/api/get-current-food-drink/', {
+                method: 'GET',
+                headers: {
+                    'X-CSRFToken': this.csrfToken
+                },
+                credentials: 'same-origin'
+            });
+            
+            const result = await response.json();
+            console.log('getCurrentFoodDrink result:', result);
+            
+            if (result.success) {
+                return result;
+            } else {
+                console.log('Failed to get current food/drink:', result.message);
+                return { success: false };
+            }
+        } catch (error) {
+            console.error('Error fetching current food/drink:', error);
+            return { success: false };
+        }
+    }
+
+    async getCurrentTrick() {
+        try {
+            const response = await fetch('/api/get-current-trick/', {
+                method: 'GET',
+                headers: {
+                    'X-CSRFToken': this.csrfToken
+                },
+                credentials: 'same-origin'
+            });
+            
+            const result = await response.json();
+            console.log('getCurrentTrick result:', result);
+            
+            if (result.success) {
+                return result;
+            } else {
+                console.log('Failed to get current trick:', result.message);
+                return { success: false };
+            }
+        } catch (error) {
+            console.error('Error fetching current trick:', error);
+            return { success: false };
+        }
+    }
+
+    getFoodItems() {
+        return [
+            { id: 0, name: 'széna', icon: '0.gif', cost: 0 },
+            { id: 1, name: 'hamburger', icon: '1.gif', cost: 0 },
+            { id: 9, name: 'csoki', icon: '9.gif', cost: 0 },
+            { id: 10, name: 'gomba', icon: '10.gif', cost: 0 },
+            { id: 12, name: 'szaloncukor', icon: '12.gif', cost: 0 }
+        ];
+    }
+
+    getDrinkItems() {
+        return [
+            { id: 0, name: 'víz', icon: '0.gif', cost: 0 },
+            { id: 1, name: 'kóla', icon: '1.gif', cost: 0 },
+            { id: 8, name: 'pezsgő', icon: '8.gif', cost: 0 },
+            { id: 9, name: 'banánturmix', icon: '9.gif', cost: 0 },
+            { id: 21, name: 'Cherry Coke', icon: '21.gif', cost: 0 }
+        ];
     }
 }
 
@@ -171,6 +269,27 @@ class TeveclubUI {
         this.guessBtn = document.getElementById('guess-btn');
         this.logoutBtn = document.getElementById('logout-btn');
 
+        // Food/Drink dropdowns
+        this.foodDropdown = document.getElementById('food-dropdown');
+        this.drinkDropdown = document.getElementById('drink-dropdown');
+        this.foodToggleBtn = document.getElementById('food-toggle-btn');
+        this.drinkToggleBtn = document.getElementById('drink-toggle-btn');
+        this.foodList = document.getElementById('food-list');
+        this.drinkList = document.getElementById('drink-list');
+        this.foodIcon = document.getElementById('food-icon');
+        this.drinkIcon = document.getElementById('drink-icon');
+
+        // Trick text
+        this.trickText = document.getElementById('trick-text');
+
+        // Set default icons
+        if (this.foodIcon) {
+            this.foodIcon.innerHTML = '<img src="/static/images/food/0.gif" style="width: 30px; height: 30px; object-fit: contain;" alt="food">';
+        }
+        if (this.drinkIcon) {
+            this.drinkIcon.innerHTML = '<img src="/static/images/drink/0.gif" style="width: 30px; height: 30px; object-fit: contain;" alt="drink">';
+        }
+
         // Status
         this.mainStatus = document.getElementById('main-status');
         this.welcomeText = document.getElementById('welcome-text');
@@ -182,6 +301,101 @@ class TeveclubUI {
         this.learnBtn.addEventListener('click', () => this.handleLearn());
         this.guessBtn.addEventListener('click', () => this.handleGuess());
         this.logoutBtn.addEventListener('click', () => this.handleLogout());
+
+        // Food/Drink toggle - only if elements exist
+        if (this.foodToggleBtn && this.drinkToggleBtn) {
+            this.foodToggleBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Food toggle clicked');
+                this.toggleDropdown('food');
+            });
+            this.drinkToggleBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Drink toggle clicked');
+                this.toggleDropdown('drink');
+            });
+
+            // Close dropdowns when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!this.foodDropdown.contains(e.target) && !this.drinkDropdown.contains(e.target)) {
+                    this.foodList.style.display = 'none';
+                    this.drinkList.style.display = 'none';
+                    this.foodDropdown.classList.remove('open');
+                    this.drinkDropdown.classList.remove('open');
+                }
+            });
+
+            // Initialize food/drink lists
+            this.initializeFoodList();
+            this.initializeDrinkList();
+        }
+    }
+
+    toggleDropdown(type) {
+        console.log('Toggle dropdown:', type);
+        if (type === 'food') {
+            const isOpen = this.foodList.style.display === 'block';
+            console.log('Food dropdown isOpen:', isOpen);
+            this.foodList.style.display = isOpen ? 'none' : 'block';
+            this.drinkList.style.display = 'none';
+            
+            this.foodDropdown.classList.toggle('open', !isOpen);
+            this.drinkDropdown.classList.remove('open');
+        } else {
+            const isOpen = this.drinkList.style.display === 'block';
+            console.log('Drink dropdown isOpen:', isOpen);
+            this.drinkList.style.display = isOpen ? 'none' : 'block';
+            this.foodList.style.display = 'none';
+            
+            this.drinkDropdown.classList.toggle('open', !isOpen);
+            this.foodDropdown.classList.remove('open');
+        }
+    }
+
+    initializeFoodList() {
+        const foods = this.api.getFoodItems();
+        console.log('Initializing food list with', foods.length, 'items');
+        this.foodList.innerHTML = foods.map(food => `
+            <div class="food-item" data-id="${food.id}">
+                <img src="/static/images/food/${food.icon}" 
+                     alt="${food.name}" 
+                     class="dropdown-item-icon"
+                     onerror="this.style.display='none';">
+                <span class="dropdown-item-name">${food.name}</span>
+                ${food.cost > 0 ? `<span class="cost">(${food.cost} dt)</span>` : '<span class="free">Ingyenes!</span>'}
+            </div>
+        `).join('');
+
+        this.foodList.querySelectorAll('.food-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                const foodId = e.currentTarget.getAttribute('data-id');
+                this.handleSetFood(parseInt(foodId));
+            });
+        });
+        console.log('Food list initialized');
+    }
+
+    initializeDrinkList() {
+        const drinks = this.api.getDrinkItems();
+        this.drinkList.innerHTML = drinks.map(drink => `
+            <div class="drink-item" data-id="${drink.id}">
+                <img src="/static/images/drink/${drink.icon}" 
+                     alt="${drink.name}"
+                     class="dropdown-item-icon"
+                     onerror="this.style.display='none';">
+                <span class="dropdown-item-name">${drink.name}</span>
+                ${drink.cost > 0 ? `<span class="cost">(${drink.cost} dt)</span>` : '<span class="free">Ingyenes!</span>'}
+            </div>
+        `).join('');
+
+        this.drinkList.querySelectorAll('.drink-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                const drinkId = e.currentTarget.getAttribute('data-id');
+                this.handleSetDrink(parseInt(drinkId));
+            });
+        });
     }
 
     showStatus(element, message, type = 'info') {
@@ -242,6 +456,10 @@ class TeveclubUI {
             this.showStatus(this.loginStatus, '✅ Login successful!', 'success');
             this.welcomeText.textContent = `Welcome, ${username}! 🐪`;
             
+            // Fetch current food/drink and trick
+            this.updateCurrentFoodDrink();
+            this.updateCurrentTrick();
+            
             setTimeout(() => {
                 this.loginPanel.style.display = 'none';
                 this.mainPanel.style.display = 'block';
@@ -294,6 +512,104 @@ class TeveclubUI {
             this.updateMainStatus(`✅ Guess game complete!\n${result.message}`, true);
         } else {
             this.updateMainStatus(`❌ Guess game failed: ${result.message}`, true);
+        }
+    }
+
+    async handleSetFood(foodId) {
+        this.foodList.style.display = 'none';
+        this.foodDropdown.classList.remove('open');
+        this.updateMainStatus(`🍕 Setting food...`, true);
+
+        const result = await this.api.setFood(foodId);
+
+        if (result.success) {
+            const food = this.api.getFoodItems().find(f => f.id === foodId);
+            const foodName = food?.name || 'food';
+            const foodIcon = food?.icon || '0.gif';
+            
+            // Update button icon immediately
+            const foodIconElement = document.getElementById('food-icon');
+            if (foodIconElement) {
+                foodIconElement.innerHTML = `<img src="/static/images/food/${foodIcon}" style="width: 30px; height: 30px; object-fit: contain;" alt="${foodName}">`;
+            }
+            
+            this.updateMainStatus(`✅ Food set to: ${foodName}`, true);
+        } else {
+            this.updateMainStatus(`❌ Food selection failed: ${result.message}`, true);
+        }
+    }
+
+    async handleSetDrink(drinkId) {
+        this.drinkList.style.display = 'none';
+        this.drinkDropdown.classList.remove('open');
+        this.updateMainStatus(`🥤 Setting drink...`, true);
+
+        const result = await this.api.setDrink(drinkId);
+
+        if (result.success) {
+            const drink = this.api.getDrinkItems().find(d => d.id === drinkId);
+            const drinkName = drink?.name || 'drink';
+            const drinkIcon = drink?.icon || '0.gif';
+            
+            // Update button icon immediately
+            const drinkIconElement = document.getElementById('drink-icon');
+            if (drinkIconElement) {
+                drinkIconElement.innerHTML = `<img src="/static/images/drink/${drinkIcon}" style="width: 30px; height: 30px; object-fit: contain;" alt="${drinkName}">`;
+            }
+            
+            this.updateMainStatus(`✅ Drink set to: ${drinkName}`, true);
+        } else {
+            this.updateMainStatus(`❌ Drink selection failed: ${result.message}`, true);
+        }
+    }
+
+    async updateCurrentFoodDrink() {
+        console.log('Fetching current food/drink...');
+        const result = await this.api.getCurrentFoodDrink();
+        console.log('getCurrentFoodDrink result:', result);
+        
+        if (result.success && result.data) {
+            const { foodIcon, drinkIcon } = result.data;
+            
+            // Update food button icon
+            if (foodIcon) {
+                const foodIconElement = document.getElementById('food-icon');
+                console.log('Updating food icon to:', foodIcon);
+                if (foodIconElement) {
+                    const imgUrl = `/static/images/food/${foodIcon}`;
+                    foodIconElement.innerHTML = `<img src="${imgUrl}" style="width: 30px; height: 30px; vertical-align: middle; object-fit: contain;" alt="current food">`;
+                }
+            }
+            
+            // Update drink button icon
+            if (drinkIcon) {
+                const drinkIconElement = document.getElementById('drink-icon');
+                console.log('Updating drink icon to:', drinkIcon);
+                if (drinkIconElement) {
+                    const imgUrl = `/static/images/drink/${drinkIcon}`;
+                    drinkIconElement.innerHTML = `<img src="${imgUrl}" style="width: 30px; height: 30px; vertical-align: middle; object-fit: contain;" alt="current drink">`;
+                }
+            }
+        } else {
+            console.log('Failed to get current food/drink');
+        }
+    }
+
+    async updateCurrentTrick() {
+        console.log('Fetching current trick...');
+        const result = await this.api.getCurrentTrick();
+        console.log('getCurrentTrick result:', result);
+        
+        if (result.success && result.trick) {
+            if (this.trickText) {
+                this.trickText.textContent = result.trick;
+                this.trickText.style.display = 'block';
+            }
+        } else {
+            console.log('Failed to get current trick');
+            if (this.trickText) {
+                this.trickText.style.display = 'none';
+            }
         }
     }
 

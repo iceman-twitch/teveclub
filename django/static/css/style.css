@@ -30,18 +30,6 @@ body {
     position: relative;
 }
 
-.panel::before {
-    content: '';
-    position: absolute;
-    top: -30px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 80px;
-    height: 80px;
-    background: url('https://teveclub.hu/img_des/palm_right.jpg') no-repeat center;
-    background-size: contain;
-}
-
 .header {
     text-align: center;
     margin-bottom: 30px;
@@ -89,18 +77,19 @@ body {
 
 .form-group input {
     padding: 15px 20px;
-    border: 2px solid #D4A574;
+    border: 3px solid #8B6914;
     border-radius: 15px;
     font-size: 1em;
-    background: white;
+    background: #FFF9E6;
     transition: all 0.3s ease;
     font-family: Verdana, Arial, sans-serif;
 }
 
 .form-group input:focus {
     outline: none;
-    border-color: #8B6914;
-    box-shadow: 0 0 0 3px rgba(139, 105, 20, 0.2);
+    border-color: #D4A574;
+    background: #FFFDF0;
+    box-shadow: 0 0 10px rgba(212, 165, 116, 0.3);
 }
 
 /* Button Styles */
@@ -122,17 +111,19 @@ body {
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, #D4A574 0%, #B8956A 100%);
-    color: #4A3820;
+    background: radial-gradient(ellipse at center, #3A7ABD 0%, #1E5A9D 60%);
+    color: white;
     font-weight: bold;
-    box-shadow: 0 4px 15px rgba(139, 105, 20, 0.4);
-    border: 2px solid #8B6914;
+    box-shadow: 0 4px 15px rgba(30, 90, 157, 0.4);
+    border: 3px solid #154573;
+    border-radius: 12px;
+    padding: 18px 40px;
 }
 
 .btn-primary:hover:not(:disabled) {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(139, 105, 20, 0.5);
-    background: linear-gradient(135deg, #E8C090 0%, #D4A574 100%);
+    box-shadow: 0 6px 20px rgba(30, 90, 157, 0.5);
+    background: radial-gradient(ellipse at center, #4A8ACD 0%, #2770BD 60%);
 }
 
 .btn-primary:active {
@@ -140,41 +131,55 @@ body {
 }
 
 .btn-secondary {
-    background: linear-gradient(135deg, #E8D4A0 0%, #D4C4B0 100%);
-    color: #4A3820;
+    background: radial-gradient(ellipse at center, #3A7ABD 0%, #1E5A9D 60%);
+    color: white;
     font-weight: bold;
-    box-shadow: 0 4px 15px rgba(139, 105, 20, 0.3);
-    border: 2px solid #B8956A;
+    box-shadow: 0 4px 15px rgba(30, 90, 157, 0.3);
+    border: 3px solid #154573;
+    border-radius: 12px;
+    padding: 18px 40px;
 }
 
 .btn-secondary:hover:not(:disabled) {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(139, 105, 20, 0.4);
-    background: linear-gradient(135deg, #F0E0B0 0%, #E8D4A0 100%);
+    box-shadow: 0 6px 20px rgba(30, 90, 157, 0.4);
+    background: radial-gradient(ellipse at center, #4A8ACD 0%, #2770BD 60%);
 }
 
 .btn-action {
-    background: #FFF9E6;
+    background: transparent;
     color: #4A3820;
     font-weight: bold;
-    border: 3px solid #D4A574;
+    border: 3px solid #8B6914;
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 10px;
-    padding: 20px;
+    padding: 18px 30px;
 }
 
 .btn-action:hover:not(:disabled) {
-    background: linear-gradient(135deg, #D4A574 0%, #B8956A 100%);
+    background: rgba(212, 165, 116, 0.1);
     color: #2A2010;
-    border-color: #8B6914;
+    border-color: #6B5410;
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(139, 105, 20, 0.4);
+    box-shadow: 0 6px 20px rgba(139, 105, 20, 0.3);
 }
 
 .btn-icon {
     font-size: 1.5em;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 30px;
+    min-height: 30px;
+}
+
+.btn-icon img {
+    width: 30px;
+    height: 30px;
+    object-fit: contain;
 }
 
 .btn-label {
@@ -183,14 +188,129 @@ body {
 
 /* Action Grid */
 .actions {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+    display: flex;
+    flex-direction: column;
     gap: 15px;
     margin-bottom: 20px;
 }
 
-.actions button:last-child {
-    grid-column: 1 / -1;
+/* Dropdown Container */
+.dropdown-container {
+    position: relative;
+    width: 100%;
+}
+
+.dropdown-container .btn-action {
+    width: 100%;
+    justify-content: space-between;
+}
+
+.dropdown-arrow {
+    font-size: 0.8em;
+    transition: transform 0.3s ease;
+}
+
+.dropdown-container.open .dropdown-arrow {
+    transform: rotate(180deg);
+}
+
+.dropdown-list {
+    width: 100%;
+    margin-top: 10px;
+    background: #FFF9E6;
+    border: 3px solid #8B6914;
+    border-radius: 12px;
+    max-height: 400px;
+    overflow-y: auto;
+    z-index: 1000;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.food-item, .drink-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 15px;
+    cursor: pointer;
+    border-bottom: 1px solid #E8D4A0;
+    transition: all 0.2s ease;
+}
+
+.food-item:last-child, .drink-item:last-child {
+    border-bottom: none;
+}
+
+.food-item:hover, .drink-item:hover {
+    background: rgba(212, 165, 116, 0.2);
+}
+
+.food-item img, .drink-item img {
+    width: 30px;
+    height: 30px;
+    border-radius: 5px;
+    flex-shrink: 0;
+}
+
+.dropdown-item-icon {
+    width: 30px;
+    height: 30px;
+    object-fit: contain;
+}
+
+.dropdown-item-name {
+    color: #4A3820;
+    font-weight: 600;
+    flex: 1;
+}
+
+.food-item span, .drink-item span {
+    color: #4A3820;
+    font-weight: 600;
+}
+
+.food-item .cost, .drink-item .cost {
+    margin-left: auto;
+    color: #8B6914;
+    font-size: 0.9em;
+}
+
+.food-item .free, .drink-item .free {
+    margin-left: auto;
+    color: #2E7D32;
+    font-size: 0.9em;
+    font-weight: bold;
+}
+
+/* Scrollbar for dropdown */
+.dropdown-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+.dropdown-list::-webkit-scrollbar-track {
+    background: #FFF9E6;
+    border-radius: 10px;
+}
+
+.dropdown-list::-webkit-scrollbar-thumb {
+    background: #D4A574;
+    border-radius: 10px;
+    border: 2px solid #FFF9E6;
+}
+
+.dropdown-list::-webkit-scrollbar-thumb:hover {
+    background: #B8956A;
 }
 
 /* Status Box */
