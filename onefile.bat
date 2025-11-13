@@ -11,4 +11,4 @@ pyinstaller --onefile --windowed --name "teveclub" --icon="icon.ico" main.py
 
 echo.
 echo Build complete! Check the 'dist' folder for your executable.
-pause
+deactivate

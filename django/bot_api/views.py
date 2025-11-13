@@ -75,6 +75,9 @@ def proxy(request):
             headers['Content-Type'] = 'application/x-www-form-urlencoded'
         
         # Make request to teveclub.hu
+        print(f"[PROXY] Request: {method} {url}")
+        print(f"[PROXY] Form data: {form_data}")
+        
         try:
             if method == 'POST':
                 response = session.post(

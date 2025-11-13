@@ -6,7 +6,9 @@ import requests
 from bs4 import BeautifulSoup
 import random
 import time
-from src.config import LOGIN_URL, MYTEVE_URL, TANIT_URL, TIPP_URL
+import re
+from lxml import html as lxml_html
+from src.config import LOGIN_URL, MYTEVE_URL, TANIT_URL, TIPP_URL, SETFOOD_URL, SETDRINK_URL
 from src.utils import get_user_agent, do_sleep
 
 
@@ -205,4 +207,118 @@ class TeveClub:
             print(f"Guess Game failed!! Error: {e}")
         
         time.sleep(3)
+        return True
+
+    def set_food(self, food_id):
+        """
+        Set the food preference for the pet
+        
+        Args:
+            food_id (int): ID of the food item
+            
+        Returns:
+            bool: True if successful, False otherwise
+        """
+        try:
+            data = {'kaja': str(food_id)}
+            r = self.session.post(SETFOOD_URL, data=data)
+            do_sleep()
+            print(f'Food set to ID: {food_id}')
+            return True
+        except Exception as e:
+            print(f'Set food failed: {e}')
+            return False
+
+    def set_drink(self, drink_id):
+        """
+        Set the drink preference for the pet
+        
+        Args:
+            drink_id (int): ID of the drink item
+            
+        Returns:
+            bool: True if successful, False otherwise
+        """
+        try:
+            data = {'kaja': str(drink_id)}
+            r = self.session.post(SETDRINK_URL, data=data)
+            do_sleep()
+            print(f'Drink set to ID: {drink_id}')
+            return True
+        except Exception as e:
+            print(f'Set drink failed: {e}')
+            return False
+
+    def get_current_food_drink(self):
+        """
+        Get current food and drink from myteve.pet page
+        
+        Returns:
+            dict: {'food_id': int, 'drink_id': int} or None if failed
+        """
+        try:
+            r = self.session.get(MYTEVE_URL)
+            do_sleep()
+            html = r.text
+            
+            result = {'food_id': None, 'drink_id': None}
+            
+            # Look for food image
+            food_match = re.search(r'Etet[\u0151o].*?/(\d+)\.gif', html, re.IGNORECASE | re.DOTALL)
+            if food_match:
+                result['food_id'] = int(food_match.group(1))
+            
+            # Look for drink image
+            drink_match = re.search(r'Itat[\u00f3o].*?/(\d+)\.gif', html, re.IGNORECASE | re.DOTALL)
+            if drink_match:
+                result['drink_id'] = int(drink_match.group(1))
+            
+            return result
+        except Exception as e:
+            print(f'Get current food/drink failed: {e}')
+            return None
+
+    def get_current_trick(self):
+        """
+        Get current trick text from myteve.pet page
+        
+        Returns:
+            str: Trick text or None if failed
+        """
+        try:
+            r = self.session.get(MYTEVE_URL)
+            do_sleep()
+            
+            # Parse with lxml
+            tree = lxml_html.fromstring(r.content)
+            
+            # Try XPath
+            trick_elements = tree.xpath('/html/body/center/table/tbody/tr[1]/td[2]/center/table[3]/tbody/tr/td/table/tbody/tr[3]/td[2]/div[1]')
+            
+            if not trick_elements:
+                trick_elements = tree.xpath('/html/body/center/table/tr[1]/td[2]/center/table[3]/tr/td/table/tr[3]/td[2]/div[1]')
+            
+            if trick_elements:
+                div_element = trick_elements[0]
+                text_parts = []
+                
+                # Get text before <br>
+                if div_element.text:
+                    text_parts.append(div_element.text)
+                
+                for child in div_element:
+                    if child.tag == 'br':
+                        break
+                    if child.text:
+                        text_parts.append(child.text)
+                    if child.tail:
+                        text_parts.append(child.tail)
+                
+                trick_text = ''.join(text_parts).strip()
+                return trick_text
+            
+            return None
+        except Exception as e:
+            print(f'Get current trick failed: {e}')
+            return None
         return True

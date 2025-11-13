@@ -40,5 +40,4 @@ echo   Access at: http://127.0.0.1:8080
 echo ================================
 echo.
 python manage.py runserver 8080
-
-pause
+call env\Scripts\deactivate

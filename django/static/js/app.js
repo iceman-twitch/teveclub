@@ -80,29 +80,57 @@ class TeveclubAPI {
     }
 
     async feed() {
-        // Check if feeding is available
-        const checkResult = await this.proxyRequest(`${this.teveclubBase}/myteve.pet`, 'GET');
+        // Feed the pet multiple times until full (like original Python bot)
+        let feedCount = 0;
+        const maxAttempts = 10;
         
-        if (!checkResult.success) {
-            return { success: false, message: 'Failed to check feeding status' };
+        while (feedCount < maxAttempts) {
+            // Check if feeding is still needed
+            const checkResult = await this.proxyRequest(
+                `${this.teveclubBase}/myteve.pet`,
+                'GET'
+            );
+            
+            if (!checkResult.success) {
+                return { success: false, message: '❌ Failed to check feeding status' };
+            }
+            
+            // If no "Mehet!" button, pet is full
+            if (!checkResult.html.includes('Mehet!')) {
+                if (feedCount === 0) {
+                    return { success: true, message: '✅ Pet is already full! No feeding needed.' };
+                } else {
+                    return { success: true, message: `✅ Pet fed ${feedCount} time(s) and is now full!` };
+                }
+            }
+            
+            // Feed the pet
+            const feedResult = await this.proxyRequest(
+                `${this.teveclubBase}/myteve.pet`,
+                'POST',
+                { 
+                    kaja: '1',
+                    pia: '1',
+                    etet: 'Mehet!'
+                }
+            );
+            
+            if (!feedResult.success) {
+                return { success: false, message: `❌ Feeding failed after ${feedCount} attempts` };
+            }
+            
+            feedCount++;
+            
+            // Check if pet is satisfied
+            if (feedResult.html && (feedResult.html.includes('elég jóllakott') || feedResult.html.includes('tele a hasa'))) {
+                return { success: true, message: `✅ Pet fed ${feedCount} time(s) and is satisfied!` };
+            }
+            
+            // Small delay between feeds
+            await new Promise(resolve => setTimeout(resolve, 500));
         }
         
-        if (!checkResult.html.includes('Mehet!')) {
-            return { success: true, message: '✅ Pet is already well-fed! No feeding needed.' };
-        }
-        
-        // Perform feeding
-        const feedResult = await this.proxyRequest(
-            `${this.teveclubBase}/myteve.pet`,
-            'POST',
-            { eat: '1' }
-        );
-        
-        if (feedResult.success) {
-            return { success: true, message: '✅ Pet fed successfully!' };
-        } else {
-            return { success: false, message: '❌ Feeding failed' };
-        }
+        return { success: true, message: `✅ Fed ${feedCount} times (max attempts reached)` };
     }
 
     async learn() {
@@ -123,12 +151,17 @@ class TeveclubAPI {
     }
 
     async guess() {
-        const result = await this.proxyRequest(
+        // Play guess game - matches original bot
+        const guessResult = await this.proxyRequest(
             `${this.teveclubBase}/egyszam.pet`,
-            'GET'
+            'POST',
+            { 
+                honnan: '403',
+                tipp: 'Ez a tippem!'
+            }
         );
         
-        if (result.success) {
+        if (guessResult.success) {
             return { success: true, message: '✅ Guess game completed!' };
         } else {
             return { success: false, message: '❌ Guess game failed' };
@@ -297,7 +330,10 @@ class TeveclubUI {
 
     bindEvents() {
         this.loginForm.addEventListener('submit', (e) => this.handleLogin(e));
-        this.feedBtn.addEventListener('click', () => this.handleFeed());
+        this.feedBtn.addEventListener('click', () => {
+            console.log('Feed button clicked!');
+            this.handleFeed();
+        });
         this.learnBtn.addEventListener('click', () => this.handleLearn());
         this.guessBtn.addEventListener('click', () => this.handleGuess());
         this.logoutBtn.addEventListener('click', () => this.handleLogout());
@@ -471,10 +507,12 @@ class TeveclubUI {
     }
 
     async handleFeed() {
+        console.log('handleFeed called');
         this.setButtonLoading(this.feedBtn, true);
         this.updateMainStatus('🍖 Starting feed process...', true);
 
         const result = await this.api.feed();
+        console.log('Feed result:', result);
 
         this.setButtonLoading(this.feedBtn, false);
 
