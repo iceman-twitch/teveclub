@@ -616,33 +616,41 @@ class LoginApp:
             radius=15, fill=self.PANEL_BG, outline="#8B6914", width=3
         )
         
-        # Main container with scrollbar inside island
-        main_container = tk.Frame(panel_canvas, bg=self.PANEL_BG)
+        # Wrapper for content + scrollbar (scrollbar outside the island)
+        wrapper_frame = tk.Frame(panel_canvas, bg=self.BG_COLOR)
         panel_canvas.create_window(
             x_offset + panel_width // 2,
             y_offset + panel_height // 2,
-            window=main_container,
-            width=panel_width - 30,
-            height=panel_height - 30
+            window=wrapper_frame
         )
         
-        # Canvas for scrolling
-        canvas = tk.Canvas(main_container, bg=self.PANEL_BG, highlightthickness=0)
+        # Main container inside island (no scrollbar here)
+        main_container = tk.Frame(wrapper_frame, bg=self.PANEL_BG)
+        main_container.pack(side="left")
         
+        # Canvas for scrolling inside island
+        canvas = tk.Canvas(main_container, bg=self.PANEL_BG, highlightthickness=0, 
+                          width=panel_width - 40, height=panel_height - 40)
+        canvas.pack()
+        
+        # Scrollbar OUTSIDE island, to the right
         # Custom scrollbar style
         style = ttk.Style()
         style.theme_use('default')
         style.configure("Custom.Vertical.TScrollbar",
                        background="#D4A574",
-                       troughcolor="#FFF9E6",
+                       troughcolor="#E8D4A0",
                        bordercolor="#8B6914",
                        arrowcolor="#8B4513",
-                       relief="flat")
+                       relief="flat",
+                       width=20)
         style.map("Custom.Vertical.TScrollbar",
                  background=[('active', '#E8C090'), ('pressed', '#C09060')])
         
-        scrollbar = ttk.Scrollbar(main_container, orient="vertical", command=canvas.yview,
+        scrollbar = ttk.Scrollbar(wrapper_frame, orient="vertical", command=canvas.yview,
                                  style="Custom.Vertical.TScrollbar")
+        scrollbar.pack(side="right", fill="y")
+        
         scrollable_frame = tk.Frame(canvas, bg=self.PANEL_BG)
         
         scrollable_frame.bind(
@@ -650,11 +658,8 @@ class LoginApp:
             lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
         )
         
-        canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
+        canvas.create_window((0, 0), window=scrollable_frame, anchor="nw", width=panel_width - 60)
         canvas.configure(yscrollcommand=scrollbar.set)
-        
-        canvas.pack(side="left", fill="both", expand=True, padx=(10, 0), pady=10)
-        scrollbar.pack(side="right", fill="y", pady=10, padx=(0, 10))
         
         # Enable mouse wheel scrolling
         def _on_mousewheel(event):
