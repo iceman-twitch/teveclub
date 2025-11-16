@@ -54,7 +54,7 @@ mkdir -p staticfiles
 
 # Set permissions
 echo "Setting permissions..."
-chmod +x manage.py
+chmod +x django/manage.py 2>/dev/null || true
 chmod +x env.sh
 chmod +x run_django.sh
 
