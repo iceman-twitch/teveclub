@@ -116,7 +116,7 @@ cd teveclub
 
 ```bash
 # Make scripts executable
-chmod +x env.sh run_django.sh
+chmod +x env.sh run.sh stop.sh restart.sh status.sh run_django.sh
 
 # Run setup
 ./env.sh
@@ -358,7 +358,7 @@ git pull
 
 # Activate venv and update dependencies
 source venv/bin/activate
-pip install -r requirements.txt
+pip install -r requirements-linux.txt
 
 # Run migrations
 cd django
@@ -377,7 +377,7 @@ git pull
 
 # Activate venv and update dependencies
 source venv/bin/activate
-pip install -r requirements.txt
+pip install -r requirements-linux.txt
 
 # Run migrations
 cd django

@@ -35,12 +35,15 @@ echo "Upgrading pip..."
 pip install --upgrade pip
 
 # Install requirements
-if [ -f "requirements.txt" ]; then
-    echo "Installing dependencies from requirements.txt..."
+if [ -f "requirements-linux.txt" ]; then
+    echo "Installing dependencies from requirements-linux.txt..."
+    pip install -r requirements-linux.txt
+elif [ -f "requirements.txt" ]; then
+    echo "Warning: Using requirements.txt. Consider using requirements-linux.txt for Linux."
     pip install -r requirements.txt
 else
-    echo "Warning: requirements.txt not found. Installing core dependencies..."
-    pip install Django==4.2.7 beautifulsoup4==4.12.2 lxml==5.3.0 requests==2.31.0
+    echo "Warning: No requirements file found. Installing core dependencies..."
+    pip install Django==4.2.7 beautifulsoup4==4.12.2 lxml==5.3.0 requests==2.31.0 gunicorn==21.2.0
 fi
 
 # Create necessary directories
