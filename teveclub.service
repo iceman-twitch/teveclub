@@ -1,0 +1,27 @@
+[Unit]
+Description=Teveclub Django Application
+After=network.target
+
+[Service]
+Type=forking
+User=ec2-user
+Group=ec2-user
+WorkingDirectory=/home/ec2-user/teveclub/django
+Environment="PATH=/home/ec2-user/teveclub/venv/bin"
+ExecStart=/home/ec2-user/teveclub/venv/bin/gunicorn teveclub_project.wsgi:application \
+    --bind 0.0.0.0:3000 \
+    --workers 3 \
+    --timeout 60 \
+    --access-logfile /home/ec2-user/teveclub/logs/access.log \
+    --error-logfile /home/ec2-user/teveclub/logs/error.log \
+    --log-level info \
+    --daemon \
+    --pid /home/ec2-user/teveclub/logs/gunicorn.pid
+ExecStop=/bin/kill -s TERM $MAINPID
+ExecReload=/bin/kill -s HUP $MAINPID
+PIDFile=/home/ec2-user/teveclub/logs/gunicorn.pid
+Restart=on-failure
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target
