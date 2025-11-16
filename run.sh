@@ -46,6 +46,9 @@ fi
 # Change to Django directory
 cd "$DJANGO_DIR"
 
+# Add Django directory to Python path
+export PYTHONPATH="$DJANGO_DIR:$PYTHONPATH"
+
 # Start Gunicorn in background
 echo "Starting Gunicorn..."
 gunicorn teveclub_project.wsgi:application \
