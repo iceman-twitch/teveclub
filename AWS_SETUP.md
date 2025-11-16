@@ -356,6 +356,10 @@ sudo journalctl -u teveclub -f
 cd ~/teveclub
 git pull
 
+# If you have local changes and want to discard them:
+# git reset --hard HEAD
+# git pull
+
 # Activate venv and update dependencies
 source venv/bin/activate
 pip install -r requirements-linux.txt
@@ -375,6 +379,10 @@ cd ..
 cd ~/teveclub
 git pull
 
+# If you have local changes and want to discard them:
+# git reset --hard HEAD
+# git pull
+
 # Activate venv and update dependencies
 source venv/bin/activate
 pip install -r requirements-linux.txt
@@ -386,6 +394,83 @@ python manage.py collectstatic --noinput
 
 # Restart service
 sudo systemctl restart teveclub
+```
+
+### 2a. Force Update (Discard All Local Changes)
+
+If you want to completely reset to the latest version from GitHub:
+
+```bash
+cd ~/teveclub
+
+# Discard ALL local changes (be careful!)
+git fetch origin
+git reset --hard origin/main
+
+# Or if on a different branch:
+# git reset --hard origin/your-branch-name
+
+# Update dependencies
+source venv/bin/activate
+pip install -r requirements-linux.txt
+
+# Run migrations and collect static
+cd django
+python manage.py migrate
+python manage.py collectstatic --noinput
+cd ..
+
+# Restart
+./restart.sh  # or: sudo systemctl restart teveclub
+```
+
+**Common git commands:**
+```bash
+# Check current status
+git status
+
+# See what changed
+git diff
+
+# Discard changes in specific file
+git checkout -- filename
+
+# Discard all local changes
+git reset --hard HEAD
+
+# Update to latest from GitHub
+git pull
+
+# Force update (discard everything)
+git fetch origin
+git reset --hard origin/main
+
+# See commit history
+git log --oneline -10
+
+# Clean untracked files (be careful!)
+git clean -fd
+
+# Ignore local changes to env/venv folders
+# (These should already be in .gitignore)
+git update-index --assume-unchanged venv/
+git update-index --assume-unchanged env/
+```
+
+**Reset specific folders (if needed):**
+```bash
+# If venv or env folders got tracked by mistake
+git rm -r --cached env/
+git rm -r --cached venv/
+
+# Make sure .gitignore contains:
+# env/
+# venv/
+# *.pyc
+# __pycache__/
+# db.sqlite3
+# .env
+# logs/
 ```
 
 ### 3. Backup Database (if using SQLite)
