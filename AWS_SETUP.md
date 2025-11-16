@@ -139,6 +139,7 @@ EOF
 cd django
 cat > .env << 'EOF'
 DEBUG=False
+SECRET_KEY=5bpkrvg%*t1q**uo=g=(^-12!)&6h$uc^&2ei_z&4e1@l2y_96
 ALLOWED_HOSTS=*
 CSRF_TRUSTED_ORIGINS=http://*,https://*
 EOF

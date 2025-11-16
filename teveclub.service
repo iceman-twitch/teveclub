@@ -3,23 +3,20 @@ Description=Teveclub Django Application
 After=network.target
 
 [Service]
-Type=forking
+Type=simple
 User=ubuntu
 Group=ubuntu
 WorkingDirectory=/home/ubuntu/teveclub/django
 Environment="PATH=/home/ubuntu/teveclub/venv/bin"
-ExecStart=/home/ubuntu/teveclub/venv/bin/gunicorn teveclub_project.wsgi:application \
+Environment="PYTHONPATH=/home/ubuntu/teveclub/django"
+ExecStart=/home/ubuntu/teveclub/venv/bin/gunicorn teveclub_web.wsgi:application \
     --bind 0.0.0.0:3000 \
     --workers 3 \
     --timeout 60 \
     --access-logfile /home/ubuntu/teveclub/logs/access.log \
     --error-logfile /home/ubuntu/teveclub/logs/error.log \
-    --log-level info \
-    --daemon \
-    --pid /home/ubuntu/teveclub/logs/gunicorn.pid
-ExecStop=/bin/kill -s TERM $MAINPID
+    --log-level info
 ExecReload=/bin/kill -s HUP $MAINPID
-PIDFile=/home/ubuntu/teveclub/logs/gunicorn.pid
 Restart=on-failure
 RestartSec=5s
 
