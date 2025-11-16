@@ -35,7 +35,7 @@ Complete guide for deploying the Teveclub Django application on Amazon AWS EC2 w
 3. Click "Launch Instance"
 4. Configure instance:
    - **Name**: `teveclub-server`
-   - **AMI**: Amazon Linux 2023
+   - **AMI**: Ubuntu Server 22.04 LTS or Ubuntu Server 24.04 LTS
    - **Instance Type**: t2.micro (free tier) or t2.small (recommended)
    - **Key Pair**: Select or create a new key pair
    - **Network Settings**:
@@ -52,8 +52,8 @@ Complete guide for deploying the Teveclub Django application on Amazon AWS EC2 w
 # Make key file private
 chmod 400 your-key.pem
 
-# Connect via SSH
-ssh -i your-key.pem ec2-user@<your-instance-public-ip>
+# Connect via SSH (use 'ubuntu' for Ubuntu AMI)
+ssh -i your-key.pem ubuntu@<your-instance-public-ip>
 ```
 
 ---
@@ -63,34 +63,35 @@ ssh -i your-key.pem ec2-user@<your-instance-public-ip>
 ### 1. Update System
 
 ```bash
-# Update all packages
-sudo dnf update -y
+# Update package list
+sudo apt update
+
+# Upgrade all packages
+sudo apt upgrade -y
 
 # Install system utilities
-sudo dnf install -y git wget curl vim
+sudo apt install -y git wget curl vim
 ```
 
 ### 2. Install Python 3
 
 ```bash
-# Install Python 3.11
-sudo dnf install -y python3.11 python3.11-pip python3.11-devel
+# Install Python 3 and pip (Ubuntu 22.04 has Python 3.10, Ubuntu 24.04 has Python 3.12)
+sudo apt install -y python3 python3-pip python3-venv python3-dev
 
 # Verify installation
-python3.11 --version
-
-# Create symlink (optional)
-sudo alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 1
+python3 --version
+pip3 --version
 ```
 
 ### 3. Install Development Tools
 
 ```bash
-# Install GCC and other build tools
-sudo dnf groupinstall -y "Development Tools"
+# Install build tools
+sudo apt install -y build-essential
 
 # Install additional dependencies
-sudo dnf install -y libxml2-devel libxslt-devel
+sudo apt install -y libxml2-dev libxslt1-dev
 ```
 
 ---
@@ -106,7 +107,7 @@ cd ~
 # Clone the repository
 git clone https://github.com/yourusername/teveclub.git
 # OR upload files via SCP:
-# scp -i your-key.pem -r teveclub ec2-user@<ip>:~/
+# scp -i your-key.pem -r teveclub ubuntu@<ip>:~/
 
 cd teveclub
 ```
@@ -207,7 +208,11 @@ sudo cp ~/teveclub/teveclub.service /etc/systemd/system/
 
 # Edit paths if needed
 sudo vim /etc/systemd/system/teveclub.service
-# Change User, Group, and paths if your setup is different
+# Change User from 'ec2-user' to 'ubuntu' and update paths:
+# User=ubuntu
+# Group=ubuntu
+# WorkingDirectory=/home/ubuntu/teveclub/django
+# All paths: /home/ubuntu/teveclub/...
 ```
 
 ### 3. Enable and Start Service
@@ -253,7 +258,7 @@ sudo journalctl -u teveclub -f
 
 ```bash
 # Install Nginx
-sudo dnf install -y nginx
+sudo apt install -y nginx
 
 # Start and enable Nginx
 sudo systemctl start nginx
@@ -280,13 +285,16 @@ sudo systemctl restart nginx
 ### 3. Configure Firewall (if enabled)
 
 ```bash
-# Check firewall status
-sudo systemctl status firewalld
+# Check firewall status (Ubuntu uses ufw)
+sudo ufw status
 
 # If firewall is active, allow HTTP/HTTPS
-sudo firewall-cmd --permanent --add-service=http
-sudo firewall-cmd --permanent --add-service=https
-sudo firewall-cmd --reload
+sudo ufw allow 'Nginx Full'
+sudo ufw allow 3000/tcp
+sudo ufw allow OpenSSH
+
+# Enable firewall (if not already enabled)
+# sudo ufw enable
 ```
 
 ---
@@ -297,7 +305,7 @@ sudo firewall-cmd --reload
 
 ```bash
 # Install Certbot
-sudo dnf install -y certbot python3-certbot-nginx
+sudo apt install -y certbot python3-certbot-nginx
 
 # Obtain certificate
 sudo certbot --nginx -d your-domain.com -d www.your-domain.com
@@ -411,7 +419,7 @@ ls -la ~/teveclub/django/staticfiles/
 sudo nginx -t
 
 # Check file permissions
-sudo chown -R ec2-user:ec2-user ~/teveclub/django/staticfiles/
+sudo chown -R ubuntu:ubuntu ~/teveclub/django/staticfiles/
 sudo chmod -R 755 ~/teveclub/django/staticfiles/
 ```
 
@@ -419,7 +427,7 @@ sudo chmod -R 755 ~/teveclub/django/staticfiles/
 
 ```bash
 # Fix ownership
-sudo chown -R ec2-user:ec2-user ~/teveclub
+sudo chown -R ubuntu:ubuntu ~/teveclub
 
 # Fix log directory
 mkdir -p ~/teveclub/logs
@@ -439,7 +447,7 @@ sudo systemctl status nginx
 # Go to EC2 console > Security Groups > Inbound Rules
 
 # Check firewall
-sudo firewall-cmd --list-all
+sudo ufw status
 ```
 
 ### High Memory Usage
@@ -492,7 +500,7 @@ gzip_types text/plain text/css text/xml text/javascript application/json applica
 - [ ] Configured ALLOWED_HOSTS
 - [ ] Enabled HTTPS with SSL certificate
 - [ ] Configured firewall rules
-- [ ] Regular system updates (`sudo dnf update`)
+- [ ] Regular system updates (`sudo apt update && sudo apt upgrade`)
 - [ ] Regular application backups
 - [ ] Monitoring logs for suspicious activity
 - [ ] Keep SSH key secure
