@@ -134,6 +134,16 @@ ALLOWED_HOSTS=your-domain.com,<your-ec2-ip>
 CSRF_TRUSTED_ORIGINS=http://your-domain.com,https://your-domain.com
 EOF
 ```
+```bash
+# Create .env file in django directory
+cd django
+cat > .env << 'EOF'
+DEBUG=False
+ALLOWED_HOSTS=*
+CSRF_TRUSTED_ORIGINS=http://*,https://*
+EOF
+```
+
 
 **Important**: Generate a strong SECRET_KEY:
 ```bash
