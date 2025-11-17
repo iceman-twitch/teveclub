@@ -52,7 +52,7 @@ export PYTHONPATH="$DJANGO_DIR:$PYTHONPATH"
 # Start Gunicorn in background
 echo "Starting Gunicorn..."
 gunicorn teveclub_project.wsgi:application \
-    --bind 0.0.0.0:3000 \
+    --bind 0.0.0.0:8000 \
     --workers 3 \
     --timeout 60 \
     --access-logfile "$APP_DIR/logs/access.log" \
@@ -71,7 +71,8 @@ if [ -f "$PID_FILE" ]; then
         echo ""
         echo "✓ Teveclub Django started successfully!"
         echo "  PID: $PID"
-        echo "  URL: http://localhost:3000"
+        echo "  Internal URL: http://localhost:8000 (not public)"
+        echo "  Public URL: http://your-domain (via Nginx)"
         echo ""
         echo "Logs:"
         echo "  Access: $APP_DIR/logs/access.log"

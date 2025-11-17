@@ -15,15 +15,9 @@ Complete guide to enable HTTPS with SSL certificate for your Teveclub applicatio
    - Dynamic DNS → No-IP Hostnames → Create Hostname
    - Hostname: `teveclub`
    - Domain: `.ddns.net`, `.hopto.org`, or other options
-   - IPv4 Address: `98.80.73.143` (your EC2 IP)
+   - IPv4 Address: `YOUR_EC2_PUBLIC_IP` (your EC2 IP)
 3. **Result**: `teveclub.ddns.net` (or your chosen domain)
 
-Update Client Description mywebsite (pr8nts6)
-DDNS Key Assigned to Hostname eternionwow.servegame.com
-Use Hostname for Integrated DDNS Devices all.ddnskey.com Enter the DDNS Key Hostname into Host, Hostname, or Domain fields of your DUC or DDNS compatible device.
-
-pr8nts6
-qDSvttM6SLdi
 **Important**: Free accounts require monthly email confirmation or hostname expires.
 
 **Update Django Settings**:
@@ -34,14 +28,14 @@ nano .env
 
 ```env
 DEBUG=False
-SECRET_KEY=5bpkrvg%*t1q**uo=g=(^-12!)&6h$uc^&2ei_z&4e1@l2y_96
-ALLOWED_HOSTS=*,teveclub.ddns.net,98.80.73.143
-CSRF_TRUSTED_ORIGINS=http://teveclub.ddns.net:3000,http://98.80.73.143:3000
+SECRET_KEY=your-secret-key-here
+ALLOWED_HOSTS=*,your-noip-hostname.ddns.net,YOUR_EC2_PUBLIC_IP
+CSRF_TRUSTED_ORIGINS=http://your-noip-hostname.ddns.net,http://YOUR_EC2_PUBLIC_IP
 ```
 
 **Restart**: `sudo systemctl restart teveclub`
 
-**Access**: `http://teveclub.ddns.net:3000`
+**Access**: `http://your-noip-hostname.ddns.net`
 
 **⚠️ Important Note**: No-IP subdomains (`.ddns.net`, `.hopto.org`, etc.) **cannot be added to Cloudflare** because you don't own the root domain. See options below:
 
@@ -58,7 +52,7 @@ sudo apt install -y nginx certbot python3-certbot-nginx
 sudo tee /etc/nginx/sites-available/teveclub > /dev/null << 'EOF'
 server {
     listen 80;
-    server_name eternionwow.servegame.com;
+    server_name your-noip-hostname.ddns.net;
 
     location /static/ {
         alias /home/ubuntu/teveclub/django/staticfiles/;
@@ -66,7 +60,7 @@ server {
     }
 
     location / {
-        proxy_pass http://127.0.0.1:3000;
+        proxy_pass http://127.0.0.1:8000;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -82,22 +76,22 @@ sudo nginx -t
 sudo systemctl restart nginx
 
 # Get free SSL certificate
-sudo certbot --nginx -d teveclub.ddns.net
+sudo certbot --nginx -d your-noip-hostname.ddns.net
 
 # Update Django settings
 cd /home/ubuntu/teveclub/django
 cat > .env << 'EOF'
 DEBUG=False
-SECRET_KEY=5bpkrvg%*t1q**uo=g=(^-12!)&6h$uc^&2ei_z&4e1@l2y_96
-ALLOWED_HOSTS=teveclub.ddns.net
-CSRF_TRUSTED_ORIGINS=https://teveclub.ddns.net
+SECRET_KEY=your-secret-key-here
+ALLOWED_HOSTS=your-noip-hostname.ddns.net
+CSRF_TRUSTED_ORIGINS=https://your-noip-hostname.ddns.net
 EOF
 
 # Restart application
 sudo systemctl restart teveclub
 ```
 
-**Result**: Visit `https://teveclub.ddns.net` (port 80/443, NOT 3000) with free SSL! ✅
+**Result**: Visit `https://your-noip-hostname.ddns.net` (port 80/443) with free SSL! ✅
 
 #### Option B: Get a Real Domain for Cloudflare
 
@@ -141,7 +135,7 @@ If you want Cloudflare features (DDoS protection, CDN):
    - Add A record:
      - Type: `A`
      - Name: `@` (or subdomain like `app`)
-     - IPv4 address: `98.80.73.143` (your EC2 IP)
+     - IPv4 address: `YOUR_EC2_PUBLIC_IP` (your EC2 IP)
      - Proxy status: **Proxied** (orange cloud)
    - Click Save
 
@@ -161,8 +155,8 @@ If you want Cloudflare features (DDoS protection, CDN):
    Update:
    ```env
    DEBUG=False
-   SECRET_KEY=5bpkrvg%*t1q**uo=g=(^-12!)&6h$uc^&2ei_z&4e1@l2y_96
-   ALLOWED_HOSTS=yourdomain.com,www.yourdomain.com,98.80.73.143
+   SECRET_KEY=your-secret-key-here
+   ALLOWED_HOSTS=yourdomain.com,www.yourdomain.com,YOUR_EC2_PUBLIC_IP
    CSRF_TRUSTED_ORIGINS=https://yourdomain.com,https://www.yourdomain.com
    ```
 
@@ -172,7 +166,7 @@ If you want Cloudflare features (DDoS protection, CDN):
    ```
 
 7. **Test**
-   - Visit `https://yourdomain.com:3000`
+   - Visit `https://yourdomain.com`
    - Should see valid SSL certificate
    - No browser warnings
 
@@ -221,7 +215,7 @@ server {
     }
 
     location / {
-        proxy_pass http://127.0.0.1:3000;
+        proxy_pass http://127.0.0.1:8000;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -286,13 +280,13 @@ If successful, certificates will auto-renew every 60 days.
 
 ### Step 8: Test HTTPS
 
-Visit `https://yourdomain.com` (port 80/443, NOT 3000)
+Visit `https://yourdomain.com` (port 80/443)
 
 ### Benefits of Let's Encrypt
 - ✅ Free SSL certificate
 - ✅ Auto-renewal
 - ✅ Full control over server
-- ✅ Standard port 443 (no :3000)
+- ✅ Standard port 443
 - ❌ Requires Nginx setup
 - ❌ More complex configuration
 
@@ -323,7 +317,7 @@ Visit `https://yourdomain.com` (port 80/443, NOT 3000)
 3. **Configure Target Group**
    - Target type: Instances
    - Protocol: HTTP
-   - Port: 3000
+   - Port: 8000
    - Health check path: `/`
    - Register your EC2 instance
 
@@ -335,7 +329,7 @@ Visit `https://yourdomain.com` (port 80/443, NOT 3000)
 
 5. **Configure Security Groups**
    - Load Balancer SG: Allow 80, 443 from 0.0.0.0/0
-   - EC2 Instance SG: Allow 3000 from Load Balancer SG only
+   - EC2 Instance SG: Allow 8000 from Load Balancer SG only
 
 6. **Update DNS**
    - Point your domain to Load Balancer DNS name (CNAME or A record alias)
@@ -398,12 +392,12 @@ SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 ```
 
-### Port 3000 Still Accessible
+### Application Port Still Accessible
 
-If using Nginx, block direct access to port 3000:
+If using Nginx, block direct access to application port:
 ```bash
-# AWS Security Group: Remove port 3000 from public access
-# Allow 3000 only from 127.0.0.1 (localhost)
+# AWS Security Group: Remove application port from public access
+# Allow application port only from 127.0.0.1 (localhost)
 ```
 
 ---
@@ -413,14 +407,14 @@ If using Nginx, block direct access to port 3000:
 ```bash
 # 1. Add domain to Cloudflare (web interface)
 # 2. Update nameservers at registrar
-# 3. Add DNS A record: @ → 98.80.73.143 (proxied)
+# 3. Add DNS A record: @ → YOUR_EC2_PUBLIC_IP (proxied)
 # 4. SSL/TLS → Full mode
 
 # 5. Update Django settings
 cd /home/ubuntu/teveclub/django
 cat > .env << 'EOF'
 DEBUG=False
-SECRET_KEY=5bpkrvg%*t1q**uo=g=(^-12!)&6h$uc^&2ei_z&4e1@l2y_96
+SECRET_KEY=your-secret-key-here
 ALLOWED_HOSTS=yourdomain.com,www.yourdomain.com
 CSRF_TRUSTED_ORIGINS=https://yourdomain.com,https://www.yourdomain.com
 EOF
@@ -428,7 +422,7 @@ EOF
 # 6. Restart
 sudo systemctl restart teveclub
 
-# 7. Visit https://yourdomain.com:3000
+# 7. Visit https://yourdomain.com
 ```
 
 Done! ✅

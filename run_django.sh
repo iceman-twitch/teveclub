@@ -38,7 +38,7 @@ if [ "$MODE" = "prod" ]; then
     
     # Run with Gunicorn
     gunicorn teveclub_project.wsgi:application \
-        --bind 0.0.0.0:3000 \
+        --bind 0.0.0.0:8000 \
         --workers 3 \
         --timeout 60 \
         --access-logfile ../logs/access.log \
@@ -53,7 +53,7 @@ if [ "$MODE" = "prod" ]; then
 elif [ "$MODE" = "dev" ]; then
     echo "Starting Teveclub Django in DEVELOPMENT mode..."
     export PYTHONPATH="$DJANGO_DIR:$PYTHONPATH"
-    python manage.py runserver 0.0.0.0:3000
+    python manage.py runserver 0.0.0.0:8000
     
 else
     echo "Usage: $0 [dev|prod]"

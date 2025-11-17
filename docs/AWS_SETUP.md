@@ -174,9 +174,9 @@ python manage.py createsuperuser
 
 ```bash
 # Test development server
-python manage.py runserver 0.0.0.0:3000
+python manage.py runserver 0.0.0.0:8000
 
-# Test in browser: http://<your-ec2-ip>:3000
+# Test in browser: http://<your-ec2-ip>:8000
 # Press Ctrl+C to stop
 ```
 
@@ -301,7 +301,7 @@ sudo ufw status
 
 # If firewall is active, allow HTTP/HTTPS
 sudo ufw allow 'Nginx Full'
-sudo ufw allow 3000/tcp
+sudo ufw allow 8000/tcp
 sudo ufw allow OpenSSH
 
 # Enable firewall (if not already enabled)
@@ -498,8 +498,8 @@ sudo systemctl status teveclub
 # View detailed logs
 sudo journalctl -u teveclub -n 50 --no-pager
 
-# Check if port 3000 is in use
-sudo netstat -tlnp | grep 3000
+# Check if application port is in use
+sudo netstat -tlnp | grep 8000
 
 # Check file permissions
 ls -la ~/teveclub/django

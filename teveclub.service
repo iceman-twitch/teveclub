@@ -10,7 +10,7 @@ WorkingDirectory=/home/ubuntu/teveclub/django
 Environment="PATH=/home/ubuntu/teveclub/venv/bin"
 Environment="PYTHONPATH=/home/ubuntu/teveclub/django"
 ExecStart=/home/ubuntu/teveclub/venv/bin/gunicorn teveclub_web.wsgi:application \
-    --bind 0.0.0.0:3000 \
+    --bind 0.0.0.0:8000 \
     --workers 3 \
     --timeout 60 \
     --access-logfile /home/ubuntu/teveclub/logs/access.log \

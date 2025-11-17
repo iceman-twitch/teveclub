@@ -18,7 +18,7 @@ Complete guide to host your Teveclub application as a Tor hidden service (.onion
 
 - Ubuntu server with Teveclub running
 - Root/sudo access
-- Port 3000 accessible locally (127.0.0.1:3000)
+- Application accessible locally (127.0.0.1:8000)
 
 ---
 
@@ -52,13 +52,13 @@ sudo nano /etc/tor/torrc
 ```
 # Teveclub Hidden Service
 HiddenServiceDir /var/lib/tor/teveclub/
-HiddenServicePort 80 127.0.0.1:3000
+HiddenServicePort 80 127.0.0.1:8000
 ```
 
 **Explanation:**
 - `HiddenServiceDir`: Where Tor stores your .onion keys
 - `HiddenServicePort 80`: External port users connect to (always use 80)
-- `127.0.0.1:3000`: Your local Django app
+- `127.0.0.1:8000`: Your local Django app
 
 **Save and exit:** `Ctrl+X`, `Y`, `Enter`
 
@@ -100,7 +100,7 @@ nano .env
 
 ```env
 DEBUG=False
-SECRET_KEY=5bpkrvg%*t1q**uo=g=(^-12!)&6h$uc^&2ei_z&4e1@l2y_96
+SECRET_KEY=your-secret-key-here
 ALLOWED_HOSTS=*,abcd1234efgh5678.onion
 CSRF_TRUSTED_ORIGINS=http://abcd1234efgh5678.onion,http://*
 ```
@@ -108,8 +108,8 @@ CSRF_TRUSTED_ORIGINS=http://abcd1234efgh5678.onion,http://*
 **Or more restrictive:**
 
 ```env
-ALLOWED_HOSTS=localhost,127.0.0.1,abcd1234efgh5678.onion,98.80.73.143
-CSRF_TRUSTED_ORIGINS=http://abcd1234efgh5678.onion,http://98.80.73.143:3000
+ALLOWED_HOSTS=localhost,127.0.0.1,abcd1234efgh5678.onion,YOUR_EC2_PUBLIC_IP
+CSRF_TRUSTED_ORIGINS=http://abcd1234efgh5678.onion,http://YOUR_EC2_PUBLIC_IP
 ```
 
 ### Step 6: Restart Application
@@ -165,7 +165,7 @@ Edit `/etc/tor/torrc`:
 ```
 # Teveclub Main Site
 HiddenServiceDir /var/lib/tor/teveclub/
-HiddenServicePort 80 127.0.0.1:3000
+HiddenServicePort 80 127.0.0.1:8000
 
 # Teveclub Admin Panel
 HiddenServiceDir /var/lib/tor/teveclub-admin/
@@ -182,7 +182,7 @@ V3 addresses are longer but more secure (56 characters):
 # In /etc/tor/torrc
 HiddenServiceVersion 3
 HiddenServiceDir /var/lib/tor/teveclub/
-HiddenServicePort 80 127.0.0.1:3000
+HiddenServicePort 80 127.0.0.1:8000
 ```
 
 Restart Tor to generate new v3 address.
@@ -197,7 +197,7 @@ sudo tor --keygen
 
 # In /etc/tor/torrc
 HiddenServiceDir /var/lib/tor/teveclub/
-HiddenServicePort 80 127.0.0.1:3000
+HiddenServicePort 80 127.0.0.1:8000
 HiddenServiceAuthorizeClient stealth client1,client2
 ```
 
@@ -209,10 +209,10 @@ Share client keys with authorized users only.
 
 ### 1. Disable Direct Access (Clearnet)
 
-Block access to port 3000 from public internet:
+Block access to application port from public internet:
 
 ```bash
-# AWS Security Group: Remove 0.0.0.0/0 from port 3000
+# AWS Security Group: Remove 0.0.0.0/0 from application port
 # Only allow 127.0.0.1 (localhost)
 ```
 
@@ -220,8 +220,8 @@ Or use firewall:
 
 ```bash
 # Allow only localhost
-sudo ufw deny 3000
-sudo ufw allow from 127.0.0.1 to any port 3000
+sudo ufw deny 8000
+sudo ufw allow from 127.0.0.1 to any port 8000
 ```
 
 ### 2. Disable Server Headers
@@ -283,7 +283,7 @@ sudo nano /etc/nginx/sites-available/teveclub-onion
 
 ```nginx
 server {
-    listen 127.0.0.1:3000 ssl;
+    listen 127.0.0.1:8000 ssl;
     
     ssl_certificate /etc/ssl/certs/teveclub-onion.crt;
     ssl_certificate_key /etc/ssl/private/teveclub-onion.key;
@@ -338,7 +338,7 @@ Tor already encrypts all traffic. HTTPS is redundant and causes browser warnings
 
 1. **Check Django is running:**
    ```bash
-   curl http://127.0.0.1:3000
+   curl http://127.0.0.1:8000
    ```
 
 2. **Check ALLOWED_HOSTS:**
@@ -380,7 +380,7 @@ sudo tee -a /etc/tor/torrc > /dev/null << 'EOF'
 
 # Teveclub Hidden Service
 HiddenServiceDir /var/lib/tor/teveclub/
-HiddenServicePort 80 127.0.0.1:3000
+HiddenServicePort 80 127.0.0.1:8000
 EOF
 
 # Restart Tor
@@ -426,14 +426,14 @@ chmod +x setup_tor.sh
 
 Run your app on all three:
 
-1. **Clearnet**: http://98.80.73.143:3000
+1. **Clearnet**: http://YOUR_EC2_PUBLIC_IP
 2. **HTTPS**: https://yourdomain.com (via Cloudflare)
 3. **Tor**: http://abcd1234efgh5678.onion
 
 **Django .env:**
 
 ```env
-ALLOWED_HOSTS=*,yourdomain.com,98.80.73.143,abcd1234efgh5678.onion
+ALLOWED_HOSTS=*,yourdomain.com,YOUR_EC2_PUBLIC_IP,abcd1234efgh5678.onion
 CSRF_TRUSTED_ORIGINS=http://*,https://*,http://abcd1234efgh5678.onion,https://yourdomain.com
 ```
 
@@ -462,7 +462,7 @@ NumEntryGuards 8
 proxy_cache_path /var/cache/nginx levels=1:2 keys_zone=tor_cache:10m;
 
 server {
-    listen 127.0.0.1:3000;
+    listen 127.0.0.1:8000;
     
     location / {
         proxy_cache tor_cache;
@@ -556,7 +556,7 @@ sudo systemctl start tor
 sudo apt install -y tor
 
 # 2. Add to config
-echo -e "\nHiddenServiceDir /var/lib/tor/teveclub/\nHiddenServicePort 80 127.0.0.1:3000" | sudo tee -a /etc/tor/torrc
+echo -e "\nHiddenServiceDir /var/lib/tor/teveclub/\nHiddenServicePort 80 127.0.0.1:8000" | sudo tee -a /etc/tor/torrc
 
 # 3. Restart Tor
 sudo systemctl restart tor
