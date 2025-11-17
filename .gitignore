@@ -29,6 +29,8 @@ credentials.json
 *.sqlite3
 db.sqlite3
 *.log
+staticfiles/
+django/staticfiles/
 
 # IDE files
 .vscode/

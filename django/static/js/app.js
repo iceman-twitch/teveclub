@@ -282,6 +282,7 @@ class TeveclubUI {
     constructor() {
         this.api = new TeveclubAPI();
         this.initElements();
+        this.loadSavedCredentials();
         this.bindEvents();
     }
 
@@ -294,6 +295,8 @@ class TeveclubUI {
         this.loginForm = document.getElementById('login-form');
         this.usernameInput = document.getElementById('username');
         this.passwordInput = document.getElementById('password');
+        this.rememberUsername = document.getElementById('remember-username');
+        this.rememberPassword = document.getElementById('remember-password');
         this.loginStatus = document.getElementById('login-status');
 
         // Action buttons
@@ -328,8 +331,55 @@ class TeveclubUI {
         this.welcomeText = document.getElementById('welcome-text');
     }
 
+    loadSavedCredentials() {
+        // Load saved username
+        const savedUsername = localStorage.getItem('teveclub_username');
+        const rememberUsernameChecked = localStorage.getItem('teveclub_remember_username') === 'true';
+        
+        if (savedUsername && rememberUsernameChecked) {
+            this.usernameInput.value = savedUsername;
+            this.rememberUsername.checked = true;
+        }
+
+        // Load saved password
+        const savedPassword = localStorage.getItem('teveclub_password');
+        const rememberPasswordChecked = localStorage.getItem('teveclub_remember_password') === 'true';
+        
+        if (savedPassword && rememberPasswordChecked) {
+            this.passwordInput.value = savedPassword;
+            this.rememberPassword.checked = true;
+        }
+    }
+
+    saveCredentials(username, password) {
+        // Save username if checkbox is checked
+        if (this.rememberUsername.checked) {
+            localStorage.setItem('teveclub_username', username);
+            localStorage.setItem('teveclub_remember_username', 'true');
+        } else {
+            localStorage.removeItem('teveclub_username');
+            localStorage.setItem('teveclub_remember_username', 'false');
+        }
+
+        // Save password if checkbox is checked
+        if (this.rememberPassword.checked) {
+            localStorage.setItem('teveclub_password', password);
+            localStorage.setItem('teveclub_remember_password', 'true');
+        } else {
+            localStorage.removeItem('teveclub_password');
+            localStorage.setItem('teveclub_remember_password', 'false');
+        }
+    }
+
     bindEvents() {
         this.loginForm.addEventListener('submit', (e) => this.handleLogin(e));
+        
+        // Auto Mode button
+        const autoModeBtn = document.getElementById('auto-mode-btn');
+        if (autoModeBtn) {
+            autoModeBtn.addEventListener('click', (e) => this.handleAutoMode(e));
+        }
+        
         this.feedBtn.addEventListener('click', () => {
             console.log('Feed button clicked!');
             this.handleFeed();
@@ -469,6 +519,71 @@ class TeveclubUI {
         }
     }
 
+    async handleAutoMode(e) {
+        e.preventDefault();
+        
+        const username = this.usernameInput.value.trim();
+        const password = this.passwordInput.value.trim();
+
+        if (!username || !password) {
+            this.showStatus(this.loginStatus, '⚠️ Please fill in all fields', 'error');
+            return;
+        }
+
+        const autoModeBtn = document.getElementById('auto-mode-btn');
+        this.setButtonLoading(autoModeBtn, true);
+        this.showStatus(this.loginStatus, '⚡ Auto Mode: Logging in...', 'info');
+
+        // Step 1: Login
+        const loginResult = await this.api.login(username, password);
+        
+        if (!loginResult.success) {
+            this.setButtonLoading(autoModeBtn, false);
+            this.showStatus(this.loginStatus, `❌ Login failed: ${loginResult.message}`, 'error');
+            return;
+        }
+
+        // Save credentials if remember me is checked
+        this.saveCredentials(username, password);
+        
+        this.showStatus(this.loginStatus, '⚡ Auto Mode: Feeding...', 'info');
+
+        // Step 2: Feed
+        const feedResult = await this.api.feed();
+        if (!feedResult.success) {
+            this.showStatus(this.loginStatus, `⚠️ Feed warning: ${feedResult.message}`, 'warning');
+        }
+
+        this.showStatus(this.loginStatus, '⚡ Auto Mode: Learning...', 'info');
+
+        // Step 3: Learn
+        const learnResult = await this.api.learn();
+        if (!learnResult.success) {
+            this.showStatus(this.loginStatus, `⚠️ Learn warning: ${learnResult.message}`, 'warning');
+        }
+
+        this.showStatus(this.loginStatus, '⚡ Auto Mode: Guessing...', 'info');
+
+        // Step 4: Guess
+        const guessResult = await this.api.guess();
+        if (!guessResult.success) {
+            this.showStatus(this.loginStatus, `⚠️ Guess warning: ${guessResult.message}`, 'warning');
+        }
+
+        this.showStatus(this.loginStatus, '⚡ Auto Mode: Logging out...', 'info');
+
+        // Step 5: Logout
+        const logoutResult = await this.api.logout();
+
+        this.setButtonLoading(autoModeBtn, false);
+
+        if (logoutResult.success) {
+            this.showStatus(this.loginStatus, '✅ Auto Mode completed successfully! All tasks done.', 'success');
+        } else {
+            this.showStatus(this.loginStatus, '⚠️ Auto Mode completed but logout failed', 'warning');
+        }
+    }
+
     async handleLogin(e) {
         e.preventDefault();
         
@@ -489,6 +604,9 @@ class TeveclubUI {
         this.setButtonLoading(submitBtn, false);
 
         if (result.success) {
+            // Save credentials if remember me is checked
+            this.saveCredentials(username, password);
+            
             this.showStatus(this.loginStatus, '✅ Login successful!', 'success');
             this.welcomeText.textContent = `Welcome, ${username}! 🐪`;
             

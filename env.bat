@@ -8,7 +8,6 @@ if %errorlevel% neq 0 (
     if %errorlevel% neq 0 (
         echo Error: Python 3.9 not found. Please install Python 3.9 first.
         echo Download from: https://www.python.org/downloads/release/python-3918/
-        pause
         exit /b 1
     )
 )
@@ -36,4 +35,3 @@ echo.
 echo Environment setup complete!
 echo To activate the environment in the future, run: venv\Scripts\activate
 call venv\Scripts\deactivate
-pause

@@ -4,6 +4,11 @@ pyinstaller==5.13.0
 beautifulsoup4==4.12.2
 lxml==5.3.0
 
+# Django web interface
+Django>=4.2,<5.0
+python-dotenv>=1.0.0
+whitenoise>=6.5.0
+
 # Optional but recommended
 pillow==10.0.1  # For image handling in the launcher
 pywin32==306    # Required for PyInstaller on Windows
