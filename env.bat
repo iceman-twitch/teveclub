@@ -2,9 +2,9 @@
 echo Creating Python 3.9 virtual environment...
 
 REM Try different ways to find Python 3.9
-py -3.9 -m venv env
+py -3.9 -m venv venv
 if %errorlevel% neq 0 (
-    python -m venv env
+    python -m venv venv
     if %errorlevel% neq 0 (
         echo Error: Python 3.9 not found. Please install Python 3.9 first.
         echo Download from: https://www.python.org/downloads/release/python-3918/
@@ -14,7 +14,7 @@ if %errorlevel% neq 0 (
 )
 
 echo Activating environment...
-call env\Scripts\activate
+call venv\Scripts\activate
 
 echo Upgrading pip...
 python -m pip install --upgrade pip
@@ -34,6 +34,6 @@ if exist requirements.txt (
 
 echo.
 echo Environment setup complete!
-echo To activate the environment in the future, run: env\Scripts\activate
-call env\Scripts\deactivate
+echo To activate the environment in the future, run: venv\Scripts\activate
+call venv\Scripts\deactivate
 pause

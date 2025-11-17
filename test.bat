@@ -8,7 +8,7 @@ echo ========================================
 echo.
 
 REM Check if virtual environment exists
-if not exist "env\Scripts\activate.bat" (
+if not exist "venv\Scripts\activate.bat" (
     echo Virtual environment not found!
     echo Please run env.bat first to set up the environment.
     echo.
@@ -18,7 +18,7 @@ if not exist "env\Scripts\activate.bat" (
 
 REM Activate the virtual environment
 echo Activating virtual environment...
-call env\Scripts\activate
+call venv\Scripts\activate
 
 REM Check if activation was successful
 if %errorlevel% neq 0 (
@@ -36,7 +36,7 @@ echo.
 python main.py
 
 REM Deactivate when done
-call env\Scripts\deactivate
+call venv\Scripts\deactivate
 
 echo.
 echo ========================================

@@ -7,9 +7,9 @@ echo.
 cd /d "%~dp0"
 
 REM Check if virtual environment exists
-if not exist "env\" (
+if not exist "venv\" (
     echo Creating virtual environment...
-    python -m venv env
+    python -m venv venv
     if %errorlevel% neq 0 (
         echo Failed to create virtual environment
         pause
@@ -19,7 +19,7 @@ if not exist "env\" (
 
 REM Activate virtual environment
 echo Activating virtual environment...
-call env\Scripts\activate.bat
+call venv\Scripts\activate.bat
 
 cd django
 
@@ -40,4 +40,4 @@ echo   Access at: http://127.0.0.1:8000
 echo ================================
 echo.
 python manage.py runserver 8000
-call env\Scripts\deactivate
+call venv\Scripts\deactivate
