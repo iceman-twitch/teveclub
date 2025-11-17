@@ -111,4 +111,13 @@ SESSION_COOKIE_SAMESITE = 'Lax'
 # CSRF settings
 CSRF_COOKIE_HTTPONLY = False  # Allow JavaScript to read it
 CSRF_COOKIE_SAMESITE = 'Lax'
-CSRF_TRUSTED_ORIGINS = ['http://127.0.0.1:8080', 'http://localhost:8080']
+CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS', 'http://127.0.0.1:8080,http://localhost:8080').split(',')
+
+# Security settings for proxy
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+USE_X_FORWARDED_HOST = True
+USE_X_FORWARDED_PORT = True
+
+# Prevent redirect loops
+SECURE_SSL_REDIRECT = False  # Let Nginx handle HTTPS redirect
+SECURE_REDIRECT_EXEMPT = []  # Don't force HTTPS redirects

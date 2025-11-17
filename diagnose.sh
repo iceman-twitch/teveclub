@@ -22,12 +22,13 @@ echo ""
 
 # 2. Check if port 8000 is listening
 echo "2. Checking if port 8000 is listening..."
-if sudo netstat -tlnp | grep :8000 > /dev/null; then
+if sudo ss -tlnp | grep :8000 > /dev/null; then
     echo "   ✓ Port 8000 is listening"
-    sudo netstat -tlnp | grep :8000
+    sudo ss -tlnp | grep :8000
 else
     echo "   ✗ Port 8000 is NOT listening"
-    echo "   Check Gunicorn logs below"
+    echo "   Checking systemd journal logs..."
+    sudo journalctl -u teveclub -n 20 --no-pager | sed 's/^/   /'
 fi
 echo ""
 
