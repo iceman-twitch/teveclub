@@ -37,7 +37,7 @@ CSRF_TRUSTED_ORIGINS=http://your-noip-hostname.ddns.net,http://YOUR_EC2_PUBLIC_I
 
 **Access**: `http://your-noip-hostname.ddns.net`
 
-**⚠️ Important Note**: No-IP subdomains (`.ddns.net`, `.hopto.org`, etc.) **cannot be added to Cloudflare** because you don't own the root domain. See options below:
+**Important Note**: No-IP subdomains (`.ddns.net`, `.hopto.org`, etc.) **cannot be added to Cloudflare** because you don't own the root domain. See options below:
 
 #### Option A: Use Let's Encrypt with No-IP (Recommended)
 
@@ -91,7 +91,7 @@ EOF
 sudo systemctl restart teveclub
 ```
 
-**Result**: Visit `https://your-noip-hostname.ddns.net` (port 80/443) with free SSL! ✅
+**Result**: Visit `https://your-noip-hostname.ddns.net` (port 80/443) with free SSL!
 
 #### Option B: Get a Real Domain for Cloudflare
 
@@ -171,11 +171,11 @@ If you want Cloudflare features (DDoS protection, CDN):
    - No browser warnings
 
 ### Benefits of Cloudflare
-- ✅ Free SSL certificate (automatic renewal)
-- ✅ DDoS protection
-- ✅ CDN for faster loading
-- ✅ Hides your real server IP
-- ✅ No server configuration needed
+- Free SSL certificate (automatic renewal)
+- DDoS protection
+- CDN for faster loading
+- Hides your real server IP
+- No server configuration needed
 
 ---
 
@@ -283,12 +283,12 @@ If successful, certificates will auto-renew every 60 days.
 Visit `https://yourdomain.com` (port 80/443)
 
 ### Benefits of Let's Encrypt
-- ✅ Free SSL certificate
-- ✅ Auto-renewal
-- ✅ Full control over server
-- ✅ Standard port 443
-- ❌ Requires Nginx setup
-- ❌ More complex configuration
+- Free SSL certificate
+- Auto-renewal
+- Full control over server
+- Standard port 443
+- Requires Nginx setup
+- More complex configuration
 
 ---
 
@@ -335,12 +335,12 @@ Visit `https://yourdomain.com` (port 80/443)
    - Point your domain to Load Balancer DNS name (CNAME or A record alias)
 
 ### Benefits of AWS ALB
-- ✅ Managed SSL certificates (auto-renewal)
-- ✅ High availability (multi-AZ)
-- ✅ AWS WAF integration
-- ✅ Health checks and auto-scaling ready
-- ❌ Costs money (~$16/month minimum)
-- ❌ More complex setup
+- Managed SSL certificates (auto-renewal)
+- High availability (multi-AZ)
+- AWS WAF integration
+- Health checks and auto-scaling ready
+- Costs money (~$16/month minimum)
+- More complex setup
 
 ---
 
@@ -425,7 +425,7 @@ sudo systemctl restart teveclub
 # 7. Visit https://yourdomain.com
 ```
 
-Done! ✅
+Done!
 
 ---
 

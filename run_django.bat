@@ -36,8 +36,8 @@ REM Start server
 echo.
 echo ================================
 echo   Starting Django server...
-echo   Access at: http://127.0.0.1:8080
+echo   Access at: http://127.0.0.1:8000
 echo ================================
 echo.
-python manage.py runserver 8080
+python manage.py runserver 8000
 call env\Scripts\deactivate

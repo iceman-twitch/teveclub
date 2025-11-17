@@ -200,4 +200,4 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 1. **First time:** `env.bat`
 2. **Every other time:** `test.bat`
 
-That's it! 🎉
+That's it!

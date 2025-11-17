@@ -1,8 +1,8 @@
-# 🐪 Teveclub Django Web Application
+# Teveclub Django Web Application
 
 A web-based interface for the Teveclub bot with modern JavaScript frontend and Django REST API backend.
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 django/
@@ -26,7 +26,7 @@ django/
         └── app.js          # Frontend API client
 ```
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Option 1: Use the batch script (Recommended)
 ```bash
@@ -52,14 +52,14 @@ python manage.py migrate
 python manage.py runserver
 ```
 
-## 🌐 Access the Application
+## Access the Application
 
 Once the server is running, open your browser to:
 ```
 http://127.0.0.1:8000
 ```
 
-## 📡 API Endpoints
+## API Endpoints
 
 All API endpoints are prefixed with `/api/`:
 
@@ -79,7 +79,7 @@ All API endpoints are prefixed with `/api/`:
 - **POST** `/api/logout/` - Logout user
   - Returns: `{"success": true/false, "message": "..."}`
 
-## 🎨 Features
+## Features
 
 - **Modern UI Design**: Brownish rounded theme matching Teveclub.hu
 - **Responsive Layout**: Works on desktop and mobile devices
@@ -88,7 +88,7 @@ All API endpoints are prefixed with `/api/`:
 - **Error Handling**: User-friendly error messages
 - **RESTful API**: Clean JSON-based communication
 
-## 🔧 Configuration
+## Configuration
 
 Edit `teveclub_web/settings.py` to configure:
 - Database settings
@@ -96,7 +96,7 @@ Edit `teveclub_web/settings.py` to configure:
 - Session timeout
 - Allowed hosts for production
 
-## 🛠 Development
+## Development
 
 ### Adding New Features
 
@@ -113,28 +113,28 @@ Edit `static/css/style.css` to customize:
 - Layout
 - Animations
 
-## 📦 Dependencies
+## Dependencies
 
 - **Django**: Web framework
 - **requests**: HTTP library for external requests
 - **beautifulsoup4**: HTML parsing
 - **Pillow**: Image processing
 
-## 🔐 Security Notes
+## Security Notes
 
 - Change `SECRET_KEY` in production
 - Enable HTTPS for production deployment
 - Set `DEBUG = False` in production
 - Configure proper `ALLOWED_HOSTS`
 
-## 📝 Notes
+## Notes
 
 - Sessions stored in Django database
 - Bot instances managed per session
 - CSRF protection enabled for all POST requests
 - Frontend uses fetch API for AJAX calls
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
 **Server won't start:**
 - Check if port 8000 is available
@@ -150,6 +150,6 @@ Edit `static/css/style.css` to customize:
 - Verify CSRF token in browser console
 - Ensure proper JSON content-type headers
 
-## 📄 License
+## License
 
 Same as parent Teveclub project

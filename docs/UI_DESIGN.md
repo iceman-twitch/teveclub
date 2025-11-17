@@ -43,7 +43,7 @@ The GUI has been completely redesigned to match the Teveclub.hu website with:
 │   ╰──────────────────────────────╯   │
 │                                      │
 │   ╭──────────────────────────────╮   │
-│   │      🚀 Login               │   │
+│   │      Login               │   │
 │   ╰──────────────────────────────╯   │
 │                                      │
 │   Status: Ready                      │
@@ -120,16 +120,16 @@ The GUI has been completely redesigned to match the Teveclub.hu website with:
 ## Status Messages with Emojis
 
 ### Login Screen
-- ⚠️ Warnings
-- 🔄 Loading/Processing
-- ✅ Success
-- ❌ Errors
+- Warnings
+- Loading/Processing
+- Success
+- Errors
 
 ### Main Panel
-- 🔄 Processing (blue)
-- ✅ Success (green)
-- ⚠️ Warning (orange)
-- ❌ Error (red)
+- Processing (blue)
+- Success (green)
+- Warning (orange)
+- Error (red)
 
 ## Window Properties
 
@@ -141,21 +141,21 @@ The GUI has been completely redesigned to match the Teveclub.hu website with:
 ## Comparison
 
 ### Before (Old UI)
-- ❌ Plain white background
-- ❌ Square corners
-- ❌ Basic buttons
-- ❌ No visual hierarchy
-- ❌ Generic look
+- Plain white background
+- Square corners
+- Basic buttons
+- No visual hierarchy
+- Generic look
 
 ### After (New UI)
-- ✅ Warm brownish theme
-- ✅ Rounded corners everywhere
-- ✅ Custom styled buttons
-- ✅ Clear visual hierarchy
-- ✅ Teveclub-inspired design
-- ✅ Emoji icons
-- ✅ Hover effects
-- ✅ Professional appearance
+- Warm brownish theme
+- Rounded corners everywhere
+- Custom styled buttons
+- Clear visual hierarchy
+- Teveclub-inspired design
+- Emoji icons
+- Hover effects
+- Professional appearance
 
 ## Technical Implementation
 

@@ -38,15 +38,15 @@ python main.py your_username your_password
 
 ## What Changed?
 
-### ✓ FIXED: Smart Feeding
+### FIXED: Smart Feeding
 **Before:** Always fed 10 times (wasteful)  
 **Now:** Checks if pet needs food, stops when full
 
-### ✓ Better Organization
+### Better Organization
 **Before:** All code in 2 large files  
 **Now:** Organized into logical modules
 
-### ✓ Easier to Maintain
+### Easier to Maintain
 **Before:** Hard to find specific features  
 **Now:** Each module has clear purpose
 
@@ -76,11 +76,11 @@ Should output:
 TEVECLUB BOT - NEW STRUCTURE TEST
 ==================================================
 Testing imports...
-✓ Config loaded
-✓ Utils loaded
-✓ Bot core loaded
+Config loaded
+Utils loaded
+Bot core loaded
 
-ALL TESTS PASSED! ✓
+ALL TESTS PASSED!
 ```
 
 ## Common Tasks
@@ -174,13 +174,13 @@ Start with `main.py` and follow the imports to understand the flow!
 
 ## Summary of Improvements
 
-✓ Fixed food system (smart feeding)  
-✓ Modular structure (easy to maintain)  
-✓ Better naming (Python conventions)  
-✓ Centralized config (easy to change)  
-✓ Reusable utilities (DRY principle)  
-✓ Documentation (README, guides, docstrings)  
-✓ Both GUI and CLI modes  
-✓ Test script included  
+Fixed food system (smart feeding)  
+Modular structure (easy to maintain)  
+Better naming (Python conventions)  
+Centralized config (easy to change)  
+Reusable utilities (DRY principle)  
+Documentation (README, guides, docstrings)  
+Both GUI and CLI modes  
+Test script included  
 
 **Your bot is now more efficient and easier to work with!**

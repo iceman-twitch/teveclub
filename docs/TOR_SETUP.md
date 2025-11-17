@@ -515,13 +515,13 @@ curl --socks5-hostname 127.0.0.1:9050 http://your-onion-address.onion
 
 ## Legal Considerations
 
-✅ **Legal Uses:**
+**Legal Uses:**
 - Privacy-focused services
 - Whistleblower platforms
 - Censorship circumvention
 - Anonymous forums
 
-⚠️ **Responsibility:**
+**Responsibility:**
 - You are responsible for content hosted
 - Follow local laws
 - Don't host illegal content
@@ -569,7 +569,7 @@ sudo cat /var/lib/tor/teveclub/hostname
 # 7. Test in Tor Browser!
 ```
 
-Done! ✅
+Done!
 
 ---
 
