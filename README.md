@@ -2,6 +2,12 @@
 
 An automation bot for TeveClub.hu, a Hungarian browser-based pet game that has been entertaining players since the early 2000s. In TeveClub, players raise and care for virtual camels by feeding them, teaching tricks, and playing guessing games to earn points and compete on leaderboards.
 
+## Live Demo
+
+Try the web interface online: **[https://eternionwow.servegame.com/](https://eternionwow.servegame.com/)**
+
+Use this demo to test the bot features without setting up your own server. Just log in with your TeveClub.hu credentials and start automating your camel care routine.
+
 ## About TeveClub.hu
 
 TeveClub.hu is a long-running Hungarian virtual pet game where you manage your own camel. The game involves:
@@ -28,7 +34,9 @@ The bot can operate in both GUI mode (with a user-friendly interface) and CLI mo
 - **Smart Feeding System** - Only feeds when the camel is actually hungry, avoiding wasted actions
 - **Automated Learning** - Completes trick learning sessions automatically
 - **Guessing Game Automation** - Plays through guessing games without manual input
-- **Web Interface** - Modern Django-based web UI for remote control
+- **Web Interface** - Modern Django-based web UI for remote control and automation
+- **Auto Mode** - Complete automation with one click: login, feed, learn, guess, logout
+- **Remember Me** - Save username and password for quick access
 - **GUI Desktop Application** - Native desktop interface with rounded, themed design
 - **CLI Mode** - Command-line interface for automation and scripting
 - **Session Management** - Maintains login sessions across multiple actions
@@ -39,12 +47,11 @@ The bot can operate in both GUI mode (with a user-friendly interface) and CLI mo
 We're planning several exciting features for future releases:
 
 - **Multi-Camel Support** - Switch between multiple camels on the same account
-- **Instant Auto-Run** - Automatically start the bot routine immediately after login
 - **Scheduling System** - Set specific times for the bot to run tasks
 - **Advanced Statistics** - Track your camel's progress and bot activity over time
 - **Custom Action Sequences** - Create your own automation routines
 - **Notification System** - Get alerts when tasks complete or issues occur
-- **Food and Drink Selection** - Choose what to feed your camel before automation starts
+- **Enhanced Food Selection** - More control over feeding preferences
 
 ## Quick Start
 
