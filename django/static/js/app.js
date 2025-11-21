@@ -784,6 +784,8 @@ class TeveclubUI {
                 this.mainPanel.style.display = 'none';
                 this.loginPanel.style.display = 'block';
                 this.loginForm.reset();
+                // Reload saved credentials after form reset
+                this.loadSavedCredentials();
                 this.hideStatus(this.loginStatus);
                 this.mainStatus.textContent = 'Ready';
             }, 500);
